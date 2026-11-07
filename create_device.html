@@ -1,0 +1,1671 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Device 1.0</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; font-family: 'Inter', -apple-system, sans-serif; background: #050810; color: #e8eef8; user-select: none; -webkit-font-smoothing: antialiased; }
+  :root { --bg-1: #050810; --bg-2: #0a1020; --bg-3: #131a2e; --bg-4: #1c2644; --accent: #00d4ff; --accent-2: #00a8ff; --accent-3: #7c3aed; --pink: #ec4899; --green: #10b981; --red: #ef4444; --yellow: #fbbf24; --text: #e8eef8; --text-dim: #8892a8; --border: rgba(255,255,255,0.08); }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  @keyframes slideDown { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 60% { transform: scale(1.08); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+  @keyframes notifBounce { 0% { transform: translateY(-100px) scale(0.8); opacity: 0; } 60% { transform: translateY(10px) scale(1.05); opacity: 1; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
+  @keyframes modalElastic { 0% { transform: scale(0.7) translateY(30px); opacity: 0; } 60% { transform: scale(1.03) translateY(-5px); opacity: 1; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(0,212,255,0.5); } 50% { box-shadow: 0 0 0 20px rgba(0,212,255,0); } }
+  @keyframes glowPulse { 0%,100% { box-shadow: 0 0 20px rgba(0,212,255,0.4), 0 0 40px rgba(0,168,255,0.2); } 50% { box-shadow: 0 0 40px rgba(0,212,255,0.9), 0 0 80px rgba(0,168,255,0.5); } }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  @keyframes wobble { 0%,100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+  @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+  @keyframes flicker { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+  @keyframes techGrid { 0% { background-position: 0 0; } 100% { background-position: 50px 50px; } }
+
+  #bg { position: fixed; inset: 0; z-index: -2; background: radial-gradient(ellipse at top left, #0a1020 0%, #050810 50%, #000 100%); overflow: hidden; }
+  #bg::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(circle at 15% 20%, rgba(0,212,255,0.15) 0%, transparent 40%), radial-gradient(circle at 85% 80%, rgba(124,58,237,0.15) 0%, transparent 40%); }
+  #bg::after { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px); background-size: 50px 50px; animation: techGrid 20s linear infinite; }
+
+  #menu { position: fixed; inset: 0; z-index: 10; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+  #menu.active { display: flex; }
+  #menu .logo { text-align: center; margin-bottom: 50px; animation: slideDown 0.8s; }
+  #menu .logo-icon { font-size: 88px; margin-bottom: 8px; filter: drop-shadow(0 8px 40px rgba(0,212,255,0.8)); animation: bob 3s ease-in-out infinite; }
+  #menu h1 { font-size: 82px; font-weight: 900; background: linear-gradient(135deg, #00d4ff 0%, #7c3aed 50%, #ec4899 100%); -webkit-background-clip: text; background-clip: text; color: transparent; letter-spacing: -4px; line-height: 1; margin-bottom: 6px; }
+  #menu .subtitle { font-size: 13px; color: var(--text-dim); letter-spacing: 10px; text-transform: uppercase; font-weight: 800; }
+  #menu .version { display: inline-block; padding: 8px 22px; background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.4); border-radius: 24px; font-size: 11px; font-weight: 900; letter-spacing: 3px; color: var(--accent); margin-bottom: 24px; text-transform: uppercase; animation: glowPulse 3s ease-in-out infinite; }
+  .menu-btn { padding: 22px 60px; font-size: 15px; font-weight: 800; background: linear-gradient(135deg, rgba(28,38,68,0.9), rgba(19,26,46,0.9)); backdrop-filter: blur(20px); color: var(--text); border: 1px solid var(--border); border-radius: 18px; cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 14px; margin: 6px; min-width: 420px; transition: all 0.35s; }
+  .menu-btn:hover { transform: translateY(-4px) scale(1.02); border-color: rgba(0,212,255,0.6); box-shadow: 0 20px 60px rgba(0,212,255,0.3); }
+  .menu-btn.primary { background: linear-gradient(135deg, #00d4ff, #00a8ff); color: #050810; border-color: rgba(255,255,255,0.3); box-shadow: 0 12px 40px rgba(0,212,255,0.5); }
+  .menu-btn .icon { font-size: 22px; }
+  .menu-btn .label-col { display: flex; flex-direction: column; gap: 3px; text-align: left; }
+  .menu-btn .sub { font-size: 10px; opacity: 0.6; letter-spacing: 2px; text-transform: uppercase; }
+  .menu-small { min-width: 140px; padding: 14px 24px; font-size: 13px; }
+
+  .screen { position: fixed; inset: 0; display: none; flex-direction: column; z-index: 10; }
+  .screen.active { display: flex; }
+  .modal-mask { position: fixed; inset: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(20px); display: none; align-items: center; justify-content: center; z-index: 100; animation: fadeIn 0.3s; }
+  .modal-mask.active { display: flex; }
+  .modal { background: linear-gradient(135deg, #0a1020 0%, #131a2e 100%); border: 1px solid var(--border); border-radius: 24px; padding: 32px; width: 640px; max-width: 94vw; max-height: 92vh; overflow-y: auto; box-shadow: 0 40px 100px rgba(0,0,0,0.8); animation: modalElastic 0.5s; }
+  .modal.wide { width: 1000px; }
+  .modal.huge { width: 1400px; height: 90vh; padding: 0; display: flex; flex-direction: column; overflow: hidden; }
+  .modal h2 { font-size: 26px; font-weight: 900; margin-bottom: 20px; background: linear-gradient(135deg, #fff 0%, #00d4ff 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .modal h3 { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; margin: 18px 0 10px; font-weight: 800; }
+  .modal input[type=text], .modal input[type=color], .modal select, .modal input[type=password], .modal input[type=number] { width: 100%; padding: 14px 18px; border-radius: 14px; border: 1px solid var(--border); background: rgba(0,0,0,0.4); color: var(--text); font-size: 14px; margin-bottom: 10px; font-family: inherit; outline: none; }
+  .modal input:focus { border-color: var(--accent); }
+  .modal input[type=color] { padding: 4px; height: 52px; cursor: pointer; }
+  .modal label { color: var(--text-dim); font-size: 11px; display: block; margin-bottom: 8px; font-weight: 800; text-transform: uppercase; }
+
+  .slot { background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 16px; padding: 18px 24px; margin-bottom: 10px; cursor: pointer; transition: all 0.28s; }
+  .slot:hover { background: rgba(0,212,255,0.08); border-color: rgba(0,212,255,0.5); transform: translateX(6px); }
+  .slot .slot-title { font-weight: 800; font-size: 15px; }
+  .slot .slot-info { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+
+  .btn-row { display: flex; gap: 10px; margin-top: 22px; }
+  .btn { flex: 1; padding: 14px 20px; border-radius: 14px; border: none; cursor: pointer; font-size: 14px; font-weight: 800; font-family: inherit; transition: all 0.28s; }
+  .btn:hover { transform: translateY(-3px) scale(1.02); }
+  .btn-primary { background: linear-gradient(135deg, #00d4ff, #00a8ff); color: #050810; box-shadow: 0 8px 24px rgba(0,212,255,0.4); }
+  .btn-secondary { background: rgba(255,255,255,0.06); color: var(--text); border: 1px solid var(--border); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  #top-bar { position: fixed; top: 14px; left: 14px; right: 14px; z-index: 60; display: flex; gap: 12px; align-items: flex-start; pointer-events: none; }
+  #top-bar > * { pointer-events: auto; }
+  .top-panel { background: linear-gradient(135deg, rgba(10,16,32,0.95), rgba(19,26,46,0.95)); backdrop-filter: blur(30px); border: 1px solid var(--border); border-radius: 18px; padding: 14px 22px; }
+  .money-row { display: flex; align-items: center; gap: 10px; font-size: 24px; font-weight: 900; }
+  .money-row .currency { color: var(--accent); font-weight: 900; }
+  .points-badge { font-size: 12px; color: var(--yellow); font-weight: 900; padding: 6px 14px; background: rgba(251,191,36,0.15); border: 1px solid rgba(251,191,36,0.4); border-radius: 20px; margin-left: 10px; }
+  .points-badge::before { content: '⭐ '; }
+  .top-sub { font-size: 11px; color: var(--text-dim); font-weight: 700; margin-top: 4px; }
+  .date-panel { text-align: center; flex: 1; max-width: 280px; margin: 0 auto; }
+  .date-big { font-size: 17px; font-weight: 900; }
+  .date-sub { font-size: 10px; color: var(--text-dim); font-weight: 800; letter-spacing: 2.5px; margin-top: 4px; }
+  .company-badge { font-size: 17px; font-weight: 900; }
+  .mini-btn { padding: 10px 16px; border-radius: 12px; font-size: 12px; font-weight: 800; cursor: pointer; background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--text); font-family: inherit; }
+  .mini-btn:hover { background: rgba(0,212,255,0.15); border-color: rgba(0,212,255,0.5); }
+
+  #notifs { position: fixed; top: 110px; left: 50%; transform: translateX(-50%); z-index: 65; display: flex; flex-direction: column; gap: 8px; max-width: 440px; pointer-events: none; align-items: center; }
+  .notif { background: linear-gradient(135deg, rgba(10,16,32,0.98), rgba(19,26,46,0.98)); backdrop-filter: blur(30px); border: 1px solid var(--border); border-left: 3px solid var(--accent); padding: 14px 22px; border-radius: 14px; font-size: 13px; font-weight: 600; pointer-events: auto; animation: notifBounce 0.6s; }
+  .notif.success { border-left-color: var(--green); }
+  .notif.error { border-left-color: var(--red); }
+  .notif.event { border-left-color: var(--yellow); color: var(--yellow); }
+
+  #office-view { position: absolute; top: 105px; left: 14px; right: 14px; bottom: 145px; display: flex; gap: 14px; }
+  #office-room { flex: 1; position: relative; border-radius: 24px; border: 1px solid var(--border); overflow: hidden; transition: background 0.5s; }
+  #office-room.lvl-1 { background: linear-gradient(135deg, #1a1a22 0%, #0a0a12 100%), repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 30px, transparent 30px, transparent 60px); }
+  #office-room.lvl-2 { background: linear-gradient(180deg, #2a3040 0%, #1a2030 100%); }
+  #office-room.lvl-3 { background: linear-gradient(180deg, #2a3548 0%, #1a2535 100%); }
+  #office-room.lvl-4 { background: radial-gradient(ellipse at top, rgba(0,212,255,0.3), transparent 60%), linear-gradient(180deg, #1a2545 0%, #0a1525 100%); }
+  #office-room.lvl-5 { background: radial-gradient(ellipse at top, rgba(124,58,237,0.3), transparent 60%), linear-gradient(180deg, #2a1545 0%, #150825 100%); }
+  #office-room.lvl-6 { background: radial-gradient(ellipse at top, rgba(251,191,36,0.3), transparent 60%), linear-gradient(180deg, #3a2a15 0%, #1a1508 100%); }
+  #office-room.lvl-7 { background: radial-gradient(ellipse at top, rgba(16,185,129,0.3), transparent 60%), linear-gradient(180deg, #153a2a 0%, #081a15 100%); }
+  #office-room.lvl-8 { background: radial-gradient(ellipse at top, rgba(0,212,255,0.4), transparent 50%), radial-gradient(ellipse at bottom right, rgba(124,58,237,0.3), transparent 50%), linear-gradient(180deg, #1a1a45 0%, #0a0a25 100%); animation: flicker 6s infinite; }
+  .office-header { position: absolute; top: 14px; left: 20px; font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2.5px; font-weight: 800; padding: 6px 14px; background: rgba(0,0,0,0.7); border-radius: 12px; border: 1px solid var(--border); z-index: 30; }
+  .office-header b { color: var(--accent); }
+  .office-window { position: absolute; top: 10%; left: 8%; width: 22%; height: 28%; border-radius: 10px; overflow: hidden; border: 3px solid rgba(0,0,0,0.5); }
+  .office-window.day { background: linear-gradient(180deg, #87ceeb, #4a90b8); }
+  .office-window.night { background: linear-gradient(180deg, #1a2030, #0a1020); }
+  .office-window.night::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle 3px at 30% 60%, rgba(255,220,120,0.8), transparent), radial-gradient(circle 2px at 60% 70%, rgba(255,220,120,0.6), transparent); animation: flicker 4s infinite; }
+  .office-window.sunset { background: linear-gradient(180deg, #ff8a3d, #c43e6b 50%, #3a1a3a); }
+  .office-window.city { background: linear-gradient(180deg, #2a3a55, #1a2538); }
+  .office-window .win-v { position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; background: rgba(0,0,0,0.5); }
+  .office-window .win-h { position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: rgba(0,0,0,0.5); }
+  .wall-clock { position: absolute; top: 12%; right: 32%; width: 50px; height: 50px; background: radial-gradient(circle, #f5f5f7, #d8d8dc); border-radius: 50%; border: 2px solid #1a1a1a; }
+  .wall-clock::before { content: ''; position: absolute; top: 50%; left: 50%; width: 2px; height: 18px; background: #1a1a1a; transform-origin: bottom; transform: translate(-50%, -100%) rotate(45deg); animation: spin 43200s linear infinite; }
+  .wall-clock::after { content: ''; position: absolute; top: 50%; left: 50%; width: 1.5px; height: 22px; background: #333; transform-origin: bottom; transform: translate(-50%, -100%) rotate(-20deg); animation: spin 3600s linear infinite; }
+  .office-board { position: absolute; top: 13%; left: 42%; width: 90px; height: 55px; background: linear-gradient(135deg, #8b7355, #6b5440); border: 2px solid #3a2818; border-radius: 4px; padding: 5px; font-size: 7px; color: rgba(255,255,255,0.75); line-height: 1.7; z-index: 3; }
+  .office-board.holo { background: linear-gradient(135deg, rgba(0,212,255,0.4), rgba(124,58,237,0.4)); border-color: rgba(0,212,255,0.8); box-shadow: 0 0 20px rgba(0,212,255,0.6); }
+  .office-bookshelf { position: absolute; top: 25%; right: 2%; width: 55px; height: 80px; background: linear-gradient(180deg, #3a2a1a, #2a1a10); border: 2px solid #1a0f08; border-radius: 3px; padding: 4px 3px; display: flex; flex-direction: column; gap: 2px; }
+  .office-bookshelf .shelf { display: flex; gap: 1px; align-items: flex-end; height: 30%; border-bottom: 1px solid rgba(0,0,0,0.6); padding-bottom: 1px; }
+  .office-bookshelf .bk { width: 4px; border-radius: 1px; }
+  .office-plant { position: absolute; bottom: 42%; right: 5%; font-size: 42px; z-index: 5; animation: wobble 4s ease-in-out infinite; }
+  .office-plant2 { position: absolute; bottom: 42%; left: 5%; font-size: 32px; z-index: 5; animation: wobble 5s ease-in-out infinite reverse; }
+  .office-carpet { position: absolute; bottom: 15%; left: 20%; right: 20%; height: 80px; border-radius: 50%; filter: blur(6px); z-index: 1; }
+  .office-carpet.red { background: radial-gradient(ellipse, rgba(239,68,68,0.5), transparent 70%); }
+  .office-carpet.blue { background: radial-gradient(ellipse, rgba(0,212,255,0.5), transparent 70%); }
+  .office-carpet.green { background: radial-gradient(ellipse, rgba(16,185,129,0.5), transparent 70%); }
+  .office-carpet.purple { background: radial-gradient(ellipse, rgba(124,58,237,0.5), transparent 70%); }
+  .office-carpet.gold { background: radial-gradient(ellipse, rgba(251,191,36,0.5), transparent 70%); }
+  .office-desk { position: absolute; width: 95px; height: 40px; background: linear-gradient(180deg, #3d2f24, #2a1f18); border-radius: 3px; box-shadow: 0 8px 20px rgba(0,0,0,0.7); z-index: 4; }
+  .office-desk .dl { position: absolute; width: 3px; height: 20px; background: #1a120e; bottom: -20px; }
+  .office-desk .dl.l { left: 6px; }
+  .office-desk .dl.r { right: 6px; }
+  .office-desk .mini-mon { position: absolute; top: -26px; left: 50%; transform: translateX(-50%); width: 40px; height: 24px; background: linear-gradient(180deg, #1a2035, #0a0d14); border: 2px solid #0a0d14; border-radius: 3px; box-shadow: 0 0 10px rgba(0,212,255,0.5); }
+  .office-desk .mini-mon::before { content: ''; position: absolute; inset: 2px; background: linear-gradient(135deg, rgba(0,212,255,0.7), rgba(124,58,237,0.5)); border-radius: 2px; animation: flicker 3s infinite; }
+  .office-desk.fancy { background: linear-gradient(180deg, #6a5040, #3a2a20); border: 1px solid rgba(251,191,36,0.4); }
+  .office-desk.holo { background: linear-gradient(180deg, rgba(0,212,255,0.4), rgba(124,58,237,0.3)); border: 1px solid rgba(0,212,255,0.8); }
+  .worker-2d { position: absolute; width: 55px; height: 85px; display: flex; flex-direction: column; align-items: center; animation: bob 3s ease-in-out infinite; cursor: pointer; z-index: 6; }
+  .worker-2d:hover { transform: translateY(-8px) scale(1.1); z-index: 20; }
+  .worker-2d .wh { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, rgba(0,212,255,0.85), rgba(0,168,255,0.65)); display: flex; align-items: center; justify-content: center; font-size: 18px; border: 2px solid rgba(255,255,255,0.35); }
+  .worker-2d .wb { width: 40px; height: 42px; background: linear-gradient(135deg, rgba(0,212,255,0.6), rgba(0,168,255,0.4)); border-radius: 20px 20px 10px 10px; margin-top: -3px; border: 0.5px solid rgba(255,255,255,0.25); }
+  .worker-2d .wn { position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%); font-size: 9px; font-weight: 800; background: rgba(0,0,0,0.85); padding: 2px 10px; border-radius: 10px; white-space: nowrap; border: 1px solid var(--border); }
+  .worker-2d .wp { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: 900; color: var(--yellow); animation: bob 2s infinite; }
+  .empty-slot { position: absolute; width: 55px; height: 85px; border: 2px dashed rgba(0,212,255,0.4); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: rgba(0,212,255,0.6); cursor: pointer; z-index: 6; }
+  .empty-slot:hover { border-color: var(--accent); background: rgba(0,212,255,0.15); }
+  .server-rack { position: absolute; bottom: 40%; right: 8%; width: 40px; height: 80px; background: linear-gradient(180deg, #1a1a22, #0a0a12); border: 1px solid rgba(0,212,255,0.5); border-radius: 3px; display: flex; flex-direction: column; gap: 2px; padding: 3px; animation: flicker 2s infinite; }
+  .server-rack .srv { height: 12px; background: rgba(0,212,255,0.4); border-radius: 1px; }
+  .office-ac { position: absolute; top: 8%; right: 5%; width: 60px; height: 25px; background: linear-gradient(180deg, #e8e8e8, #c8c8c8); border-radius: 4px; }
+
+  #office-sidebar { width: 320px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; }
+  .side-panel { background: linear-gradient(135deg, rgba(10,16,32,0.95), rgba(19,26,46,0.95)); backdrop-filter: blur(30px); border: 1px solid var(--border); border-radius: 18px; padding: 18px; }
+  .side-panel h4 { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2.5px; margin-bottom: 12px; font-weight: 800; }
+  .side-panel .btn-sm { width: 100%; padding: 12px; border-radius: 12px; font-size: 12px; font-weight: 800; cursor: pointer; font-family: inherit; margin-bottom: 6px; border: none; transition: all 0.2s; }
+  .side-panel .btn-sm:hover { transform: translateX(4px); }
+
+  #news { position: fixed; bottom: 145px; right: 14px; z-index: 55; width: 300px; max-height: 220px; background: linear-gradient(135deg, rgba(10,16,32,0.95), rgba(19,26,46,0.95)); backdrop-filter: blur(30px); border: 1px solid var(--border); border-radius: 18px; display: flex; flex-direction: column; overflow: hidden; }
+  #news .nh { padding: 12px 16px; font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2.5px; border-bottom: 1px solid var(--border); font-weight: 800; }
+  #news .nl { flex: 1; overflow-y: auto; padding: 8px; }
+  #news .ni { padding: 8px 12px; font-size: 11px; border-left: 2px solid var(--accent); margin-bottom: 6px; border-radius: 0 10px 10px 0; background: rgba(255,255,255,0.03); }
+  #news .ni .na { color: var(--accent); font-weight: 800; font-size: 10px; }
+
+  #speed { position: fixed; bottom: 145px; left: 14px; z-index: 55; background: linear-gradient(135deg, rgba(10,16,32,0.95), rgba(19,26,46,0.95)); backdrop-filter: blur(30px); border: 1px solid var(--border); border-radius: 24px; padding: 4px; display: flex; gap: 3px; }
+  .sp-btn { min-width: 48px; height: 36px; border-radius: 20px; background: transparent; border: none; color: var(--text-dim); font-size: 12px; font-weight: 900; cursor: pointer; font-family: inherit; }
+  .sp-btn.active { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #050810; }
+
+  #bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 128px; background: linear-gradient(180deg, rgba(10,16,32,0.95), rgba(5,8,16,0.98)); backdrop-filter: blur(40px); border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: center; gap: 16px; padding: 0 20px; z-index: 50; overflow-x: auto; }
+  .circle-btn { width: 66px; height: 66px; flex-shrink: 0; border-radius: 50%; background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02)); border: 1px solid rgba(255,255,255,0.15); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.32s; padding: 4px; position: relative; }
+  .circle-btn:hover { transform: translateY(-6px) scale(1.1); background: linear-gradient(135deg, rgba(0,212,255,0.2), rgba(0,168,255,0.1)); border-color: rgba(0,212,255,0.7); box-shadow: 0 14px 40px rgba(0,212,255,0.5); }
+  .circle-btn .cb-icon { font-size: 24px; margin-bottom: 2px; }
+  .circle-btn .cb-label { font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.8px; opacity: 0.85; font-weight: 800; }
+  .circle-btn.main { width: 88px; height: 88px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #050810; font-size: 42px; font-weight: 300; border: 2px solid rgba(255,255,255,0.4); box-shadow: 0 10px 40px rgba(0,212,255,0.6); animation: glowPulse 2.5s ease-in-out infinite; }
+  .circle-btn.main:hover { transform: translateY(-8px) scale(1.12) rotate(90deg); }
+  .circle-btn .cb-badge { position: absolute; top: -4px; right: -4px; min-width: 22px; height: 22px; border-radius: 11px; background: linear-gradient(135deg, #ff5050, var(--red)); color: #fff; font-size: 11px; font-weight: 900; display: none; align-items: center; justify-content: center; padding: 0 6px; }
+  .circle-btn .cb-badge.show { display: flex; }
+  .circle-btn.gold { background: linear-gradient(135deg, rgba(251,191,36,0.25), rgba(245,158,11,0.15)); border-color: rgba(251,191,36,0.5); }
+  .circle-btn.blue { background: linear-gradient(135deg, rgba(0,212,255,0.25), rgba(0,168,255,0.15)); border-color: rgba(0,212,255,0.5); }
+  .circle-btn.vk { background: linear-gradient(135deg, rgba(39,135,245,0.3), rgba(76,117,163,0.2)); border-color: rgba(39,135,245,0.6); }
+  .circle-btn.purple { background: linear-gradient(135deg, rgba(124,58,237,0.3), rgba(91,33,182,0.2)); border-color: rgba(124,58,237,0.6); }
+  .circle-btn.green { background: linear-gradient(135deg, rgba(16,185,129,0.25), rgba(22,163,74,0.15)); border-color: rgba(16,185,129,0.5); }
+  .divider { width: 1px; height: 40px; background: linear-gradient(180deg, transparent, rgba(0,212,255,0.4), transparent); margin: 0 6px; flex-shrink: 0; }
+
+  #plus-menu { position: fixed; bottom: 150px; left: 50%; transform: translateX(-50%); display: none; flex-direction: column; gap: 10px; z-index: 60; }
+  #plus-menu.show { display: flex; animation: slideUp 0.4s; }
+  .plus-opt { background: linear-gradient(135deg, rgba(10,16,32,0.98), rgba(19,26,46,0.98)); backdrop-filter: blur(40px); border: 1px solid var(--border); border-radius: 18px; padding: 18px 30px; color: var(--text); cursor: pointer; font-size: 14px; font-weight: 800; text-align: center; min-width: 300px; transition: all 0.28s; display: flex; align-items: center; justify-content: center; gap: 12px; }
+  .plus-opt:hover { background: rgba(0,212,255,0.2); border-color: var(--accent); transform: scale(1.05); }
+
+  #progress-bar { position: fixed; top: 110px; right: 14px; z-index: 55; background: linear-gradient(135deg, rgba(10,16,32,0.95), rgba(19,26,46,0.95)); backdrop-filter: blur(30px); border: 1px solid rgba(0,212,255,0.5); border-radius: 16px; padding: 14px 18px; display: none; }
+  #progress-bar.show { display: block; }
+  #progress-bar .pt { font-size: 10px; color: var(--accent); font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase; }
+  #progress-bar .pb { height: 8px; background: rgba(0,0,0,0.5); border-radius: 4px; overflow: hidden; margin-top: 10px; width: 200px; }
+  #progress-bar .pf { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-3)); transition: width 0.3s; }
+  #progress-bar .tx { font-size: 11px; color: var(--text-dim); margin-top: 6px; font-weight: 700; }
+
+  #copy-panel { position: fixed; top: 200px; left: 14px; z-index: 55; width: 260px; background: rgba(0,212,255,0.15); backdrop-filter: blur(30px); border: 1px solid rgba(0,212,255,0.5); border-radius: 16px; padding: 14px; display: none; }
+  #copy-panel.show { display: block; }
+  #copy-panel .cpt { font-size: 10px; color: var(--accent); font-weight: 900; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
+  #copy-panel .cpr { display: flex; justify-content: space-between; font-size: 11px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  #copy-panel .cph { height: 6px; background: rgba(0,0,0,0.5); border-radius: 3px; overflow: hidden; margin: 6px 0; }
+  #copy-panel .cphf { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-3)); }
+
+  #menu-scene { position: fixed; inset: 0; z-index: 1; background: linear-gradient(180deg, #1a1f2e 0%, #0f1419 60%, #05070f 100%); overflow: hidden; display: none; }
+  #menu-scene .wall { position: absolute; top: 0; left: 0; right: 0; bottom: 30%; background: linear-gradient(180deg, #1e2436 0%, #151a28 60%, #0d1119 100%), repeating-linear-gradient(90deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 80px); }
+  #rain-window { position: absolute; top: 8%; left: 6%; width: 32%; height: 60%; border-radius: 8px; background: linear-gradient(180deg, #2a3a55 0%, #1a2638 40%, #0d1520 100%); border: 12px solid #0a0d14; overflow: hidden; }
+  #rain-window .drops { position: absolute; inset: 0; background: repeating-linear-gradient(170deg, transparent 0px, transparent 6px, rgba(140,170,220,0.3) 6px, rgba(140,170,220,0.3) 7px, transparent 7px, transparent 30px); animation: bob 1s linear infinite; }
+  #desk { position: absolute; bottom: 22%; right: 5%; width: 55%; height: 8px; background: linear-gradient(180deg, #3d2f24 0%, #2a1f18 100%); }
+  #monitor { position: absolute; bottom: calc(22% + 8px); right: 15%; width: 340px; height: 220px; background: #0a0d14; border-radius: 12px; border: 6px solid #1a1f2e; z-index: 6; overflow: hidden; }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.3); border-radius: 4px; }
+  .hint { color: var(--text-dim); font-size: 11px; margin-top: 6px; font-style: italic; }
+  .country-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin: 14px 0; }
+  .country-card { background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 16px; padding: 14px; cursor: pointer; transition: all 0.28s; }
+  .country-card:hover { transform: translateY(-3px); border-color: rgba(0,212,255,0.4); }
+  .country-card.selected { background: rgba(0,212,255,0.2); border-color: var(--accent); }
+  .country-card .cc-flag { font-size: 28px; margin-bottom: 6px; }
+  .country-card .cc-name { font-weight: 800; font-size: 13px; }
+  .country-card .cc-desc { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+  .budget-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 10px 0; }
+  .budget-card { background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 16px; padding: 16px; cursor: pointer; text-align: center; }
+  .budget-card.selected { background: rgba(0,212,255,0.2); border-color: var(--accent); }
+  .budget-card .bc-amt { font-size: 18px; font-weight: 900; color: var(--accent); }
+  .budget-card .bc-lbl { font-size: 9px; color: var(--text-dim); letter-spacing: 1.5px; margin-top: 4px; font-weight: 800; text-transform: uppercase; }
+  .license-choice { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 14px; }
+  .license-card { padding: 18px; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 16px; cursor: pointer; text-align: center; transition: all 0.28s; }
+  .license-card:hover { transform: translateY(-4px); border-color: var(--accent); }
+  .license-card .lc-icon { font-size: 32px; margin-bottom: 8px; }
+  .license-card .lc-name { font-weight: 800; font-size: 13px; }
+  .license-card .lc-price { font-size: 11px; color: var(--accent); margin-top: 6px; font-weight: 900; }
+  .company-card { background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 10px; display: flex; gap: 14px; align-items: center; }
+  .company-card .cc-logo { width: 64px; height: 64px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 30px; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.15); }
+  .company-card .cc-info { flex: 1; }
+  .company-card .cc-nm { font-size: 17px; font-weight: 900; }
+  .company-card .cc-ds { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+  .office-upgrade { background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 10px; }
+  .office-upgrade.locked { opacity: 0.5; }
+  .office-upgrade.current { border-color: rgba(16,185,129,0.6); background: rgba(16,185,129,0.1); }
+  .office-upgrade .oup-nm { font-size: 16px; font-weight: 900; }
+  .office-upgrade .oup-ds { font-size: 11px; color: var(--text-dim); margin: 6px 0; }
+  .office-upgrade .oup-cs { font-size: 12px; color: var(--accent); font-weight: 800; margin-bottom: 8px; }
+  .copy-card { background: rgba(0,0,0,0.4); border: 1.5px solid var(--border); border-radius: 16px; padding: 16px; cursor: pointer; text-align: center; transition: all 0.3s; }
+  .copy-card:hover { transform: translateY(-4px); border-color: rgba(0,212,255,0.6); }
+  .copy-card.selected { border-color: var(--accent); background: rgba(0,212,255,0.15); }
+  .copy-card .ce { font-size: 34px; margin-bottom: 6px; }
+  .copy-card .cn { font-weight: 800; font-size: 13px; }
+  .copy-card .cs { font-size: 10px; color: var(--text-dim); margin-top: 6px; line-height: 1.5; }
+
+  #research-header { padding: 20px 30px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  #research-points-badge { padding: 12px 22px; background: linear-gradient(135deg, rgba(251,191,36,0.2), rgba(245,158,11,0.15)); border: 1px solid rgba(251,191,36,0.4); border-radius: 16px; font-size: 18px; font-weight: 900; color: var(--yellow); }
+  #buy-all-btn { padding: 12px 22px; background: linear-gradient(135deg, var(--green), #059669); color: #fff; border: none; border-radius: 14px; font-size: 13px; font-weight: 900; cursor: pointer; font-family: inherit; }
+  #research-tabs { display: flex; gap: 6px; padding: 14px 30px 0; border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .r-tab { padding: 12px 24px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-bottom: none; border-radius: 14px 14px 0 0; color: var(--text-dim); font-size: 13px; font-weight: 800; cursor: pointer; font-family: inherit; white-space: nowrap; }
+  .r-tab.active { color: var(--text); background: rgba(0,212,255,0.2); border-color: rgba(0,212,255,0.5); }
+  #research-content { flex: 1; overflow-y: auto; padding: 22px 30px 30px; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; align-content: start; }
+  .r-item { background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 16px; padding: 18px; transition: all 0.28s; }
+  .r-item.locked { opacity: 0.5; }
+  .r-item.purchased { border-color: rgba(16,185,129,0.6); background: rgba(16,185,129,0.08); }
+  .r-item.available { border-color: rgba(0,212,255,0.4); }
+  .r-item.available:hover { transform: translateY(-4px) scale(1.02); border-color: var(--accent); }
+  .r-item .rh { display: flex; justify-content: space-between; margin-bottom: 10px; }
+  .r-item .ri { font-size: 30px; }
+  .r-item .rc { padding: 4px 12px; border-radius: 10px; background: rgba(251,191,36,0.15); border: 1px solid rgba(251,191,36,0.4); font-size: 11px; font-weight: 900; color: var(--yellow); }
+  .r-item .rt { font-size: 13px; font-weight: 800; margin-bottom: 4px; }
+  .r-item .rd { font-size: 11px; color: var(--text-dim); line-height: 1.5; margin-bottom: 10px; }
+  .r-item .ry { font-size: 10px; color: var(--accent); font-weight: 700; margin-bottom: 8px; }
+  .r-item .rb { width: 100%; padding: 10px; border-radius: 12px; border: none; font-size: 12px; font-weight: 800; cursor: pointer; font-family: inherit; }
+  .r-item .rb.buy { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #050810; }
+  .r-item .rb.buy.no-money { background: rgba(251,191,36,0.25); color: var(--yellow); }
+  .r-item .rb.bought { background: rgba(16,185,129,0.2); color: var(--green); cursor: default; }
+  .r-item .rb.locked { background: rgba(239,68,68,0.15); color: #ff9090; cursor: not-allowed; }
+
+  #staff-body { padding: 20px 30px 30px; max-height: 65vh; overflow-y: auto; }
+  #staff-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-bottom: 22px; }
+  .stat-card { background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 16px; padding: 16px; text-align: center; }
+  .stat-card .sv { font-size: 24px; font-weight: 900; color: var(--accent); }
+  .stat-card .sl { font-size: 10px; color: var(--text-dim); margin-top: 4px; text-transform: uppercase; font-weight: 800; }
+  .staff-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .staff-col h3 { color: var(--accent); font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; font-weight: 800; }
+  .staff-worker { display: flex; gap: 12px; align-items: center; padding: 12px; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 8px; }
+  .staff-worker .sw-av { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-2)); display: flex; align-items: center; justify-content: center; font-size: 20px; }
+  .staff-worker .sw-i { flex: 1; }
+  .staff-worker .sw-n { font-size: 13px; font-weight: 800; }
+  .staff-worker .sw-r { font-size: 10px; color: var(--text-dim); font-weight: 600; }
+  .staff-worker .sw-p { font-size: 11px; color: var(--green); font-weight: 800; margin-top: 2px; }
+  .staff-worker .sw-f { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color: #ff9090; border-radius: 10px; padding: 6px 12px; font-size: 11px; cursor: pointer; font-weight: 800; font-family: inherit; }
+  .staff-hire { display: flex; gap: 12px; align-items: center; padding: 12px; background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.3); border-radius: 14px; margin-bottom: 8px; cursor: pointer; }
+  .staff-hire:hover { background: rgba(16,185,129,0.18); }
+  .staff-hire .sh-av { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--green), #059669); display: flex; align-items: center; justify-content: center; font-size: 20px; }
+  .staff-hire .sh-i { flex: 1; }
+  .staff-hire .sh-n { font-size: 13px; font-weight: 800; }
+  .staff-hire .sh-r { font-size: 10px; color: var(--text-dim); font-weight: 600; }
+  .staff-hire .sh-p { font-size: 13px; color: var(--yellow); font-weight: 900; }
+
+  #sim-welcome { position: fixed; inset: 0; z-index: 600; background: radial-gradient(ellipse at center, #131a2e 0%, #050810 100%); display: none; align-items: center; justify-content: center; flex-direction: column; padding: 40px; }
+  #sim-welcome.active { display: flex; }
+  #sim-welcome h2 { font-size: 42px; font-weight: 900; margin-bottom: 8px; background: linear-gradient(135deg, #00d4ff, #7c3aed); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  #sim-welcome .sub { color: var(--text-dim); margin-bottom: 30px; letter-spacing: 4px; text-transform: uppercase; font-size: 11px; font-weight: 800; }
+  .ose-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; max-width: 1100px; width: 100%; max-height: 60vh; overflow-y: auto; padding: 8px; }
+  .ose-pick { padding: 20px; background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(124,58,237,0.1)); border: 1px solid rgba(0,212,255,0.4); border-radius: 20px; cursor: pointer; text-align: center; }
+  .ose-pick:hover { transform: translateY(-6px) scale(1.03); border-color: var(--accent); box-shadow: 0 20px 60px rgba(0,212,255,0.4); }
+  .ose-pick .oi { font-size: 48px; margin-bottom: 10px; }
+  .ose-pick .on { font-size: 18px; font-weight: 900; margin-bottom: 4px; }
+  .ose-pick .os { font-size: 11px; color: var(--text-dim); margin-bottom: 10px; }
+  .ose-pick .or { font-size: 12px; font-weight: 800; color: var(--green); }
+
+  #sim { position: fixed; inset: 0; z-index: 500; background: radial-gradient(ellipse at center, #131a2e 0%, #050810 100%); display: none; align-items: center; justify-content: center; }
+  #sim.active { display: flex; }
+  #sim-phone { width: 360px; height: 720px; border-radius: 52px; background: linear-gradient(160deg, #1a1a22, #0a0a0f); padding: 14px; box-shadow: 0 60px 120px rgba(0,0,0,0.9); position: relative; }
+  #sim-phone::before { content: ''; position: absolute; top: 14px; left: 50%; transform: translateX(-50%); width: 120px; height: 28px; border-radius: 18px; background: #000; z-index: 100; }
+  #sim-screen { width: 100%; height: 100%; border-radius: 40px; overflow: hidden; background: #000; position: relative; }
+  #sim-exit { position: absolute; top: -70px; right: 0; background: linear-gradient(135deg, rgba(239,68,68,0.4), rgba(220,38,38,0.3)); border: 1px solid rgba(239,68,68,0.6); color: #fff; padding: 12px 24px; border-radius: 14px; cursor: pointer; font-size: 13px; font-weight: 800; }
+  .sim-lock { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 70px 20px 30px; transition: transform 0.5s; }
+  .sim-lock.unlock { transform: translateY(-100%); }
+  .sim-unlock-btn { padding: 14px 32px; border-radius: 16px; background: linear-gradient(135deg, #00d4ff, #00a8ff); color: #000; font-size: 15px; font-weight: 900; cursor: pointer; border: none; margin-top: 14px; font-family: inherit; }
+  .sim-home { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 56px 20px 24px; transform: translateY(100%); transition: transform 0.5s; overflow-y: auto; }
+  .sim-home.unlock { transform: translateY(0); }
+  .sim-apps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px 12px; margin-top: 14px; }
+  .sim-app { text-align: center; cursor: pointer; transition: all 0.2s; }
+  .sim-app:hover { transform: scale(1.15); }
+  .sim-app .ai { aspect-ratio: 1; border-radius: 22%; display: flex; align-items: center; justify-content: center; font-size: 26px; margin-bottom: 4px; }
+  .sim-app .al { font-size: 10px; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.8); font-weight: 600; }
+  .sim-dock { margin-top: auto; display: flex; justify-content: space-around; padding: 12px; border-radius: 28px; }
+  .sim-dock .da { width: 52px; height: 52px; border-radius: 20%; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; }
+  .sim-app-view { position: absolute; inset: 0; background: rgba(10,16,32,0.98); z-index: 45; transform: scale(0); transition: transform 0.4s; display: flex; flex-direction: column; }
+  .sim-app-view.open { transform: scale(1); }
+  .sim-app-view .app-header { padding: 52px 18px 14px; display: flex; align-items: center; gap: 14px; border-bottom: 0.5px solid rgba(255,255,255,0.1); }
+  .sim-app-view .back-btn { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; }
+  .sim-app-view .app-title { font-size: 16px; font-weight: 800; }
+  .sim-app-view .app-body { flex: 1; padding: 20px; overflow-y: auto; }
+  .sim-status { height: 32px; display: flex; justify-content: space-between; align-items: center; padding: 0 26px; font-size: 12px; font-weight: 700; color: #fff; position: absolute; top: 0; left: 0; right: 0; z-index: 30; }
+
+  .editor-container { display: grid; grid-template-columns: 400px 1fr; gap: 24px; padding: 24px 30px; height: calc(90vh - 80px); overflow: hidden; }
+  .editor-left { overflow-y: auto; padding-right: 12px; }
+  .editor-right { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px; }
+  .editor-header { padding: 18px 30px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .editor-header h2 { margin: 0; font-size: 22px; }
+  .editor-tabs { display: flex; gap: 6px; padding: 14px 30px 0; border-bottom: 1px solid var(--border); overflow-x: auto; background: rgba(0,0,0,0.2); }
+  .e-tab { padding: 12px 20px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-bottom: none; border-radius: 14px 14px 0 0; color: var(--text-dim); font-size: 12px; font-weight: 800; cursor: pointer; font-family: inherit; white-space: nowrap; }
+  .e-tab.active { color: var(--text); background: rgba(0,212,255,0.2); border-color: rgba(0,212,255,0.5); }
+  .editor-tab-content { display: none; padding: 20px 0; }
+  .editor-tab-content.active { display: block; }
+
+  .field-group { margin-bottom: 18px; padding: 16px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 14px; }
+  .field-group-title { font-size: 10px; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; font-weight: 800; margin-bottom: 14px; }
+  .field-row { margin-bottom: 14px; }
+  .field-row:last-child { margin-bottom: 0; }
+  .field-row label { display: flex; justify-content: space-between; color: var(--text-dim); font-size: 11px; margin-bottom: 6px; font-weight: 800; text-transform: uppercase; }
+  .field-row label span { color: var(--accent); }
+  .field-row input[type=range] { width: 100%; accent-color: var(--accent); }
+  .field-row input[type=text], .field-row select { width: 100%; padding: 12px; border-radius: 12px; background: rgba(0,0,0,0.5); border: 1px solid var(--border); color: var(--text); font-family: inherit; font-size: 13px; }
+  .color-picker { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+  .swatch { width: 36px; height: 36px; border-radius: 50%; cursor: pointer; border: 2.5px solid transparent; transition: all 0.22s; }
+  .swatch.selected { border-color: #fff; box-shadow: 0 0 0 3px var(--accent); }
+  .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .toggle-row:last-child { border: none; }
+  .toggle-row .lbl { font-size: 12px; font-weight: 700; }
+  .toggle-switch { position: relative; width: 44px; height: 24px; background: rgba(255,255,255,0.1); border-radius: 12px; cursor: pointer; transition: all 0.25s; }
+  .toggle-switch.on { background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
+  .toggle-switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; background: #fff; border-radius: 50%; transition: all 0.25s; }
+  .toggle-switch.on::after { left: 23px; }
+
+  .phone-preview { width: 260px; height: 500px; border-radius: 42px; background: linear-gradient(160deg, #1a1a22 0%, #0a0a0f 100%); padding: 12px; box-shadow: 0 30px 80px rgba(0,0,0,0.8); position: relative; transition: all 0.3s; }
+  .phone-preview::before { content: ''; position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 80px; height: 20px; border-radius: 12px; background: #000; z-index: 10; }
+  .phone-preview .screen { width: 100%; height: 100%; border-radius: 32px; overflow: hidden; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; text-align: center; padding: 60px 16px 30px; }
+  .phone-preview .screen .brand { font-size: 11px; color: rgba(255,255,255,0.6); letter-spacing: 3px; font-weight: 900; margin-bottom: 6px; }
+  .phone-preview .screen .model { font-size: 18px; font-weight: 900; margin-bottom: 12px; }
+  .phone-preview .screen .spec-badges { display: flex; flex-direction: column; gap: 4px; }
+  .phone-preview .screen .sb { font-size: 10px; padding: 3px 10px; background: rgba(0,0,0,0.5); border-radius: 8px; font-weight: 700; }
+  .phone-preview .screen .price { margin-top: 14px; font-size: 20px; font-weight: 900; color: #00d4ff; }
+  .phone-preview .screen .notch-cam { position: absolute; top: 18px; right: 20px; font-size: 14px; }
+
+  .os-preview-phone { width: 280px; height: 540px; border-radius: 48px; background: linear-gradient(160deg, #1a1a22 0%, #0a0a0f 100%); padding: 14px; box-shadow: 0 30px 80px rgba(0,0,0,0.8); position: relative; }
+  .os-preview-phone::before { content: ''; position: absolute; top: 14px; left: 50%; transform: translateX(-50%); width: 90px; height: 22px; border-radius: 14px; background: #000; z-index: 10; }
+  .os-preview-phone .os-screen { width: 100%; height: 100%; border-radius: 36px; overflow: hidden; position: relative; }
+
+  .preview-stats { margin-top: 16px; padding: 16px; background: rgba(0,0,0,0.4); border-radius: 16px; border: 1px solid var(--border); width: 100%; max-width: 280px; }
+  .preview-stat-row { display: flex; justify-content: space-between; font-size: 12px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .preview-stat-row:last-child { border: none; }
+  .preview-stat-row .psl { color: var(--text-dim); font-weight: 700; }
+  .preview-stat-row .psv { color: var(--text); font-weight: 900; }
+  .preview-stat-row .psv.good { color: var(--green); }
+  .preview-stat-row .psv.bad { color: var(--red); }
+
+  #unlocked-banner { position: fixed; top: 110px; left: 50%; transform: translateX(-50%) translateY(-100px); z-index: 240; background: linear-gradient(135deg, rgba(16,185,129,0.96), rgba(5,150,105,0.92)); border: 1px solid rgba(255,255,255,0.5); border-radius: 16px; padding: 12px 24px; color: #fff; font-weight: 800; transition: transform 0.4s; font-size: 13px; }
+  #unlocked-banner.show { transform: translateX(-50%) translateY(0); }
+  .encrypted-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.4); border-radius: 10px; font-size: 10px; color: var(--green); font-weight: 800; margin-left: 6px; }
+  #esc-menu .menu-row { display: flex; flex-direction: column; gap: 8px; margin-top: 18px; }
+  #esc-menu .menu-btn-row { padding: 16px 24px; border-radius: 16px; cursor: pointer; font-size: 14px; font-weight: 800; text-align: center; background: rgba(255,255,255,0.06); border: 1px solid var(--border); }
+  #esc-menu .menu-btn-row.primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #050810; }
+  #esc-menu .menu-btn-row.danger { background: rgba(239,68,68,0.15); color: #ff9090; }
+  #esc-menu .menu-btn-row.success { background: rgba(16,185,129,0.15); color: var(--green); }
+  .admin-section { background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-bottom: 10px; }
+  .admin-section h4 { font-size: 10px; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; font-weight: 900; }
+  .admin-field { margin-bottom: 10px; }
+  .admin-field label { display: block; font-size: 11px; color: var(--text-dim); margin-bottom: 6px; font-weight: 800; text-transform: uppercase; }
+  .admin-field input { width: 100%; padding: 10px; border-radius: 10px; background: rgba(0,0,0,0.4); border: 1px solid var(--border); color: var(--text); font-family: inherit; font-size: 12px; }
+  .admin-status { padding: 10px 16px; border-radius: 12px; font-size: 12px; font-weight: 700; margin-bottom: 14px; text-align: center; }
+  .admin-status.ok { background: rgba(16,185,129,0.15); color: var(--green); }
+  .admin-status.err { background: rgba(239,68,68,0.15); color: #ff9090; }
+  .admin-btn { padding: 8px 14px; border-radius: 10px; border: none; cursor: pointer; font-family: inherit; font-size: 11px; font-weight: 800; margin: 3px 3px 3px 0; }
+  .admin-btn.primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #050810; }
+  .admin-btn.success { background: rgba(16,185,129,0.25); color: var(--green); border: 1px solid rgba(16,185,129,0.5); }
+  .admin-btn.danger { background: rgba(239,68,68,0.25); color: #ff9090; border: 1px solid rgba(239,68,68,0.5); }
+  #taskbar { position: fixed; bottom: 0; left: 0; right: 0; height: 28px; background: rgba(5,8,16,0.9); backdrop-filter: blur(30px); border-top: 1px solid var(--border); display: flex; align-items: center; padding: 0 12px; z-index: 1; pointer-events: none; font-size: 10px; color: var(--text-dim); font-weight: 700; }
+  #tb-clock { margin-left: auto; font-family: 'JetBrains Mono', monospace; }
+</style>
+</head>
+<body>
+
+<div id="bg"></div>
+
+<div id="menu" class="active">
+  <div class="logo">
+    <div class="logo-icon">📱</div>
+    <div class="version">v1.0 • Create Device</div>
+    <h1>Create Device</h1>
+    <div class="subtitle">INNOVATION STARTS HERE</div>
+  </div>
+  <button class="menu-btn primary" onclick="openNewGame()"><span class="icon">▶</span><div class="label-col"><span>НОВАЯ ИГРА</span><span class="sub">Build your tech empire</span></div></button>
+  <button class="menu-btn" onclick="openContinue()"><span class="icon">💾</span><div class="label-col"><span>ПРОДОЛЖИТЬ</span><span class="sub">Load encrypted save</span></div></button>
+  <div style="display:flex; gap:10px; margin-top:16px;"><button class="menu-btn menu-small" onclick="importSaveFile()"><span class="icon">📂</span> Импорт</button></div>
+</div>
+
+<div id="taskbar"><div id="tb-clock">Create Device 1.0</div></div>
+
+<div id="slot-new" class="modal-mask"><div class="modal"><h2>Новая игра</h2><div id="new-slots"></div><div class="btn-row"><button class="btn btn-secondary" onclick="closeModal('slot-new')">Отмена</button></div></div></div>
+<div id="slot-continue" class="modal-mask"><div class="modal"><h2>Продолжить</h2><div id="cont-slots"></div><div class="btn-row"><button class="btn btn-secondary" onclick="closeModal('slot-continue')">Отмена</button><button class="btn btn-primary" onclick="importSaveFile()">📂 Импорт</button></div></div></div>
+
+<div id="company-setup" class="modal-mask">
+  <div class="modal">
+    <h2>Основание компании</h2>
+    <h3>Название</h3>
+    <input type="text" id="inp-company-name" maxlength="24" placeholder="NovaTech">
+    <h3>Цвет бренда</h3>
+    <input type="color" id="inp-company-color" value="#00d4ff">
+    <h3 style="margin-top:18px;">Страна</h3>
+    <div class="country-grid" id="country-grid"></div>
+    <div id="budget-section" style="display:none;">
+      <h3>Стартовый бюджет</h3>
+      <div class="budget-grid" id="budget-grid"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="closeModal('company-setup')">Отмена</button>
+      <button class="btn btn-primary" onclick="confirmCompany()">Начать!</button>
+    </div>
+  </div>
+</div>
+
+<div id="game-screen" class="screen">
+  <div id="top-bar">
+    <div class="top-panel">
+      <div class="money-row"><span class="currency">$</span><span id="hdr-money">0</span><span class="points-badge" id="hdr-points">0</span></div>
+      <div class="top-sub" id="hdr-country">—</div>
+      <div class="top-sub">реп. <span id="hdr-rep">50</span> • ранг #<span id="hdr-rank">?</span></div>
+    </div>
+    <div class="top-panel date-panel">
+      <div class="date-big" id="hdr-date">1 января 2004</div>
+      <div class="date-sub" id="hdr-day">ДЕНЬ 1</div>
+    </div>
+    <div class="top-panel" style="margin-left:auto;">
+      <div class="company-badge" id="hdr-name">—</div>
+      <div style="display:flex; gap:6px; margin-top:8px;">
+        <button class="mini-btn" id="btn-pause" onclick="togglePause()">⏸ Пауза</button>
+        <button class="mini-btn" onclick="saveAndExit()">💾 Меню</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="notifs"></div>
+
+  <div id="copy-panel">
+    <div class="cpt">📊 Копии телефонов</div>
+    <div class="cpr"><span>Хайп</span><span id="cp-hype">0%</span></div>
+    <div class="cph"><div class="cphf" id="cp-hype-fill" style="width:0%"></div></div>
+    <div class="cpr"><span>Продано</span><span id="cp-sold">0</span></div>
+    <div class="cpr"><span>Доход</span><span id="cp-income">$0</span></div>
+    <div class="cpr"><span>До года</span><span id="cp-until">—</span></div>
+  </div>
+
+  <div id="office-view">
+    <div id="office-room" class="lvl-1">
+      <div class="office-header">🏢 <b id="office-name">ГАРАЖ</b> — <span id="room-workers">0</span>/<span id="room-max">3</span></div>
+      <div id="office-decor"></div>
+      <div id="office-workers"></div>
+      <div id="office-empty"></div>
+    </div>
+    <div id="office-sidebar">
+      <div class="side-panel">
+        <h4>⏳ Разработки (<span id="project-count">0</span>)</h4>
+        <div id="office-projects"></div>
+      </div>
+      <div class="side-panel">
+        <h4>🏢 Действия</h4>
+        <button class="btn btn-primary btn-sm" onclick="openCompanies()">📊 Рынок</button>
+        <button class="btn btn-secondary btn-sm" onclick="openOfficeUpgrade()">🏢 Улучшить офис</button>
+        <button class="btn btn-secondary btn-sm" onclick="openCopySetup()">📱 Копии телефонов</button>
+      </div>
+      <div class="side-panel">
+        <h4>🏆 Награды</h4>
+        <div id="office-awards-mini"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="news">
+    <div class="nh">📰 PULSENET</div>
+    <div class="nl" id="news-list"></div>
+  </div>
+
+  <div id="speed">
+    <button class="sp-btn active" data-speed="1" onclick="setSpeed(1)">×1</button>
+    <button class="sp-btn" data-speed="1.5" onclick="setSpeed(1.5)">×1.5</button>
+    <button class="sp-btn" data-speed="2" onclick="setSpeed(2)">×2</button>
+    <button class="sp-btn" data-speed="5" onclick="setSpeed(5)">×5</button>
+  </div>
+
+  <div id="progress-bar">
+    <div class="pt">⏳ В разработке</div>
+    <div class="pb"><div class="pf" id="dpo-fill" style="width:0%"></div></div>
+    <div class="tx" id="dpo-text">0 очков</div>
+  </div>
+
+  <div id="bottom-bar">
+    <div class="circle-btn" onclick="openStaff()" title="Сотрудники"><div class="cb-icon">👥</div><div class="cb-label">Сотр.</div></div>
+    <div class="circle-btn blue" onclick="openResearch()" title="Наука"><div class="cb-icon">🔬</div><div class="cb-label">Наука</div></div>
+    <div class="divider"></div>
+    <div class="circle-btn main" id="mainBtn" onclick="mainBtnClick()" title="Создать">+</div>
+    <div class="divider"></div>
+    <div class="circle-btn gold" onclick="openAwards()" title="Награды"><div class="cb-icon">🏆</div><div class="cb-label">Награды</div><div class="cb-badge" id="awards-badge">0</div></div>
+    <div class="circle-btn vk" onclick="openSocial()" title="VK"><div class="cb-icon">👥</div><div class="cb-label">VK</div></div>
+    <div class="circle-btn green" onclick="openDevicesList()" title="Устройства"><div class="cb-icon">📦</div><div class="cb-label">Устр.</div></div>
+  </div>
+
+  <div id="plus-menu">
+    <div class="plus-opt" onclick="closePlusMenu(); openDesigner();"><span>📱</span> Создать телефон</div>
+    <div class="plus-opt" onclick="closePlusMenu(); openLicenseChoice();"><span>💻</span> Создать ОС</div>
+    <div class="plus-opt" onclick="closePlusMenu(); openOSList();"><span>🚀</span> Запустить ОС (симуляция)</div>
+    <div class="plus-opt" onclick="closePlusMenu(); openMarketing();"><span>📢</span> Реклама</div>
+  </div>
+</div>
+
+<div id="unlocked-banner"></div>
+
+<div id="device-designer" class="modal-mask">
+  <div class="modal huge">
+    <div class="editor-header">
+      <h2>📱 Редактор телефона</h2>
+      <button class="btn btn-secondary" style="width:auto; padding:10px 22px;" onclick="closeModal('device-designer')">✕ Закрыть</button>
+    </div>
+    <div class="editor-tabs">
+      <button class="e-tab active" data-etab="main" onclick="switchETab('main')">🎨 Основное</button>
+      <button class="e-tab" data-etab="display" onclick="switchETab('display')">📺 Экран</button>
+      <button class="e-tab" data-etab="camera" onclick="switchETab('camera')">📷 Камера</button>
+      <button class="e-tab" data-etab="battery" onclick="switchETab('battery')">🔋 Батарея</button>
+      <button class="e-tab" data-etab="hardware" onclick="switchETab('hardware')">⚙️ Железо</button>
+      <button class="e-tab" data-etab="connectivity" onclick="switchETab('connectivity')">📡 Связь</button>
+      <button class="e-tab" data-etab="extras" onclick="switchETab('extras')">✨ Фишки</button>
+      <button class="e-tab" data-etab="pricing" onclick="switchETab('pricing')">💰 Цена</button>
+    </div>
+    <div class="editor-container">
+      <div class="editor-left">
+        <div class="editor-tab-content active" data-econtent="main">
+          <div class="field-group">
+            <div class="field-group-title">📝 Название и ОС</div>
+            <div class="field-row"><label>Название модели</label><input type="text" id="dev-name" maxlength="20" placeholder="Nova X"></div>
+            <div class="field-row"><label>Операционная система</label><select id="dev-os"></select></div>
+          </div>
+          <div class="field-group">
+            <div class="field-group-title">🎨 Дизайн</div>
+            <div class="field-row"><label>Цвет корпуса</label><div class="color-picker" id="color-picker"></div></div>
+            <div class="field-row"><label>Материал</label><select id="spec-mat"><option>Пластик</option><option>Стекло</option><option>Металл</option><option>Титан</option><option>Керамика</option></select></div>
+            <div class="field-row"><label>Форма</label><select id="spec-form"><option>Скруглённая</option><option>Плоская (iPhone 4)</option><option>Складная</option><option>Изогнутая</option></select></div>
+          </div>
+        </div>
+        <div class="editor-tab-content" data-econtent="display">
+          <div class="field-group">
+            <div class="field-group-title">📺 Экран</div>
+            <div class="field-row"><label>Диагональ: <span id="screen-val">6.1"</span></label><input type="range" id="spec-screen" min="2" max="8" step="0.1" value="6.1"></div>
+            <div class="field-row"><label>Частота: <span id="hz-val">60 Гц</span></label><input type="range" id="spec-hz" min="60" max="165" step="1" value="60"></div>
+            <div class="field-row"><label>Разрешение</label><select id="spec-res"><option>HD</option><option>FHD</option><option>2K</option><option>4K</option><option>8K</option></select></div>
+            <div class="field-row"><label>Яркость: <span id="bright-val">500</span> нит</label><input type="range" id="spec-bright" min="200" max="2000" step="50" value="500"></div>
+            <div class="field-row"><label>Тип матрицы</label><select id="spec-matrix"><option>LCD</option><option>OLED</option><option>AMOLED</option><option>LTPO AMOLED</option></select></div>
+            <div class="toggle-row"><div class="lbl">Always-On</div><div class="toggle-switch" id="tog-aod" onclick="toggleTog('aod')"></div></div>
+            <div class="toggle-row"><div class="lbl">HDR</div><div class="toggle-switch on" id="tog-hdr" onclick="toggleTog('hdr')"></div></div>
+          </div>
+        </div>
+        <div class="editor-tab-content" data-econtent="camera">
+          <div class="field-group">
+            <div class="field-group-title">📷 Основная камера</div>
+            <div class="field-row"><label>Мп: <span id="cam-val">12</span></label><input type="range" id="spec-cam" min="1" max="200" step="1" value="12"></div>
+            <div class="toggle-row"><div class="lbl">OIS</div><div class="toggle-switch on" id="tog-ois" onclick="toggleTog('ois')"></div></div>
+            <div class="toggle-row"><div class="lbl">Ночной</div><div class="toggle-switch on" id="tog-night" onclick="toggleTog('night')"></div></div>
+            <div class="toggle-row"><div class="lbl">8K видео</div><div class="toggle-switch" id="tog-8k" onclick="toggleTog('8k')"></div></div>
+            <div class="toggle-row"><div class="lbl">AI-обработка</div><div class="toggle-switch" id="tog-aicam" onclick="toggleTog('aicam')"></div></div>
+            <div class="field-row" style="margin-top:14px;"><label>Фронталка: <span id="frontcam-val">8</span> Мп</label><input type="range" id="spec-frontcam" min="1" max="60" step="1" value="8"></div>
+          </div>
+        </div>
+        <div class="editor-tab-content" data-econtent="battery">
+          <div class="field-group">
+            <div class="field-group-title">🔋 Батарея</div>
+            <div class="field-row"><label>Ёмкость: <span id="bat-val">4000</span> мАч</label><input type="range" id="spec-bat" min="1000" max="10000" step="100" value="4000"></div>
+            <div class="field-row"><label>Зарядка: <span id="charge-val">25</span> Вт</label><input type="range" id="spec-charge" min="5" max="240" step="5" value="25"></div>
+            <div class="toggle-row"><div class="lbl">Беспроводная</div><div class="toggle-switch on" id="tog-wireless" onclick="toggleTog('wireless')"></div></div>
+            <div class="toggle-row"><div class="lbl">Обратная</div><div class="toggle-switch" id="tog-reverse" onclick="toggleTog('reverse')"></div></div>
+          </div>
+        </div>
+        <div class="editor-tab-content" data-econtent="hardware">
+          <div class="field-group">
+            <div class="field-group-title">⚙️ Процессор и память</div>
+            <div class="field-row"><label>Чип</label><select id="spec-cpu"><option>Snapdragon 8 Gen 3</option><option>A17 Pro</option><option>Dimensity 9300</option><option>Exynos 2400</option><option>Apple M3</option></select></div>
+            <div class="field-row"><label>Ядра: <span id="cores-val">8</span></label><input type="range" id="spec-cores" min="4" max="16" step="1" value="8"></div>
+            <div class="field-row"><label>ОЗУ: <span id="ram-val">8</span> ГБ</label><input type="range" id="spec-ram" min="2" max="32" step="2" value="8"></div>
+            <div class="field-row"><label>Накопитель</label><select id="spec-rom"><option>64 ГБ</option><option>128 ГБ</option><option>256 ГБ</option><option>512 ГБ</option><option>1 ТБ</option><option>2 ТБ</option></select></div>
+            <div class="toggle-row"><div class="lbl">5G</div><div class="toggle-switch on" id="tog-5g" onclick="toggleTog('5g')"></div></div>
+            <div class="toggle-row"><div class="lbl">NFC</div><div class="toggle-switch on" id="tog-nfc" onclick="toggleTog('nfc')"></div></div>
+            <div class="toggle-row"><div class="lbl">IP68</div><div class="toggle-switch on" id="tog-ip68" onclick="toggleTog('ip68')"></div></div>
+          </div>
+        </div>
+        <div class="editor-tab-content" data-econtent="connectivity">
+          <div class="field-group">
+            <div class="field-group-title">📡 Связь</div>
+            <div class="field-row"><label>Wi-Fi</label><select id="spec-wifi"><option>Wi-Fi 5</option><option>Wi-Fi 6</option><option>Wi-Fi 6E</option><option>Wi-Fi 7</option></select></div>
+            <div class="field-row"><label>Bluetooth</label><select id="spec-bt"><option>5.0</option><option>5.1</option><option>5.2</option><option>5.3</option><option>5.4</option></select></div>
+            <div class="toggle-row"><div class="lbl">Спутник</div><div class="toggle-switch" id="tog-satellite" onclick="toggleTog('satellite')"></div></div>
+            <div class="toggle-row"><div class="lbl">UWB</div><div class="toggle-switch" id="tog-uwb" onclick="toggleTog('uwb')"></div></div>
+            <div class="toggle-row"><div class="lbl">ИК-порт</div><div class="toggle-switch" id="tog-ir" onclick="toggleTog('ir')"></div></div>
+          </div>
+        </div>
+        <div class="editor-tab-content" data-econtent="extras">
+          <div class="field-group">
+            <div class="field-group-title">✨ Фишки</div>
+            <div class="toggle-row"><div class="lbl">Отпечаток</div><div class="toggle-switch on" id="tog-finger" onclick="toggleTog('finger')"></div></div>
+            <div class="toggle-row"><div class="lbl">Face ID</div><div class="toggle-switch on" id="tog-faceid" onclick="toggleTog('faceid')"></div></div>
+            <div class="toggle-row"><div class="lbl">Стерео</div><div class="toggle-switch on" id="tog-stereo" onclick="toggleTog('stereo')"></div></div>
+            <div class="toggle-row"><div class="lbl">Hi-Fi</div><div class="toggle-switch" id="tog-hifi" onclick="toggleTog('hifi')"></div></div>
+            <div class="toggle-row"><div class="lbl">Стилус</div><div class="toggle-switch" id="tog-stylus" onclick="toggleTog('stylus')"></div></div>
+          </div>
+        </div>
+        <div class="editor-tab-content" data-econtent="pricing">
+          <div class="field-group">
+            <div class="field-group-title">💰 Цена</div>
+            <div class="field-row"><label>Цена: <span id="price-val">$800</span></label><input type="range" id="dev-price" min="50" max="5000" step="10" value="800"></div>
+            <div class="preview-stats">
+              <div class="preview-stat-row"><span class="psl">⭐ Оценка</span><span class="psv" id="pv-score">0</span></div>
+              <div class="preview-stat-row"><span class="psl">💵 Себестоимость</span><span class="psv bad" id="pv-cost">$0</span></div>
+              <div class="preview-stat-row"><span class="psl">💰 Прибыль</span><span class="psv good" id="pv-profit">$0</span></div>
+              <div class="preview-stat-row"><span class="psl">📈 Маржа</span><span class="psv" id="pv-margin">0%</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="editor-right">
+        <div class="phone-preview" id="preview-phone">
+          <div class="notch-cam">📷</div>
+          <div class="screen" id="preview-screen"></div>
+        </div>
+        <div style="margin-top:20px; display:flex; gap:10px;">
+          <button class="btn btn-secondary" style="padding:14px 24px;" onclick="closeModal('device-designer')">Отмена</button>
+          <button class="btn btn-primary" style="padding:14px 32px;" onclick="startDeviceProject()">🚀 Разработка</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="os-designer" class="modal-mask">
+  <div class="modal huge">
+    <div class="editor-header">
+      <h2>💻 Редактор ОС</h2>
+      <button class="btn btn-secondary" style="width:auto; padding:10px 22px;" onclick="closeModal('os-designer')">✕ Закрыть</button>
+    </div>
+    <div class="editor-tabs">
+      <button class="e-tab active" data-otab="main" onclick="switchOTab('main')">🎨 Основное</button>
+      <button class="e-tab" data-otab="lock" onclick="switchOTab('lock')">🔒 Блокировка</button>
+      <button class="e-tab" data-otab="home" onclick="switchOTab('home')">🏠 Рабочий стол</button>
+      <button class="e-tab" data-otab="security" onclick="switchOTab('security')">🔐 Безопасность</button>
+      <button class="e-tab" data-otab="ai" onclick="switchOTab('ai')">🤖 ИИ</button>
+    </div>
+    <div class="editor-container">
+      <div class="editor-left">
+        <div class="editor-tab-content active" data-ocontent="main">
+          <div class="field-group">
+            <div class="field-group-title">📝 Идентичность ОС</div>
+            <div class="field-row"><label>Название</label><input type="text" id="os-name" maxlength="16" placeholder="NovaOS"></div>
+            <div class="field-row"><label>Версия</label><input type="text" id="os-version" value="1.0"></div>
+            <div class="field-row"><label>Стиль</label><select id="os-style"><option>Material Design</option><option>iOS 27</option><option>Vision Pro</option><option>Неоморфизм</option><option>Киберпанк</option><option>Глассморфизм</option></select></div>
+            <div class="field-row"><label>Основной цвет</label><input type="color" id="os-color" value="#00d4ff" style="width:100%; height:52px; border-radius:12px; padding:4px;"></div>
+            <div class="field-row"><label>Вторичный цвет</label><input type="color" id="os-color2" value="#7c3aed" style="width:100%; height:52px; border-radius:12px; padding:4px;"></div>
+          </div>
+        </div>
+        <div class="editor-tab-content" data-ocontent="lock">
+          <div class="field-group">
+            <div class="field-group-title">🔒 Блокировка</div>
+            <div class="field-row"><label>Обои</label><select id="lock-wallpaper"><option>Градиент</option><option>Горы</option><option>Океан</option><option>Космос</option></select></div>
+            <div class="field-row"><label>Размер часов: <span id="lock-clock-val">64</span></label><input type="range" id="lock-clock" min="32" max="96" step="4" value="64"></div>
+            <div class="toggle-row"><div class="lbl">Дата</div><div class="toggle-switch on" id="otog-date" onclick="toggleOTog('date')"></div></div>
+            <div class="toggle-row"><div class="lbl">Погода</div><div class="toggle-switch on" id="otog-weather" onclick="toggleOTog('weather')"></div></div>
+          </div>
+        </div>
+        <div class="editor-tab-content" data-ocontent="home">
+          <div class="field-group">
+            <div class="field-group-title">🏠 Рабочий стол</div>
+            <div class="field-row"><label>Обои</label><input type="color" id="home-wallpaper" value="#1a1a2e" style="width:100%; height:52px; border-radius:12px; padding:4px;"></div>
+            <div class="field-row"><label>Иконки</label><select id="home-icons"><option>Скруглённые квадраты</option><option>Круги</option><option>Квадраты</option><option>Squircle</option></select></div>
+            <div class="field-row"><label>Колонок: <span id="home-cols-val">4</span></label><input type="range" id="home-cols" min="3" max="6" step="1" value="4"></div>
+            <div class="toggle-row"><div class="lbl">Док-панель</div><div class="toggle-switch on" id="otog-dock" onclick="toggleOTog('dock')"></div></div>
+          </div>
+        </div>
+        <div class="editor-tab-content" data-ocontent="security">
+          <div class="field-group">
+            <div class="field-group-title">🔐 Безопасность</div>
+            <div class="field-row"><label>Тип блокировки</label><select id="sec-type"><option>Без пароля</option><option>PIN 4</option><option>PIN 6</option><option>Пароль</option><option>Отпечаток</option><option>Face ID</option></select></div>
+            <div class="field-row"><label>PIN / Пароль</label><input type="text" id="sec-pass" value="1234" maxlength="12"></div>
+          </div>
+        </div>
+        <div class="editor-tab-content" data-ocontent="ai">
+          <div class="field-group">
+            <div class="field-group-title">🤖 ИИ</div>
+            <div class="toggle-row"><div class="lbl">Голосовой ассистент</div><div class="toggle-switch on" id="otog-assistant" onclick="toggleOTog('assistant')"></div></div>
+            <div class="toggle-row"><div class="lbl">AI-камера</div><div class="toggle-switch on" id="otog-aicam" onclick="toggleOTog('aicam')"></div></div>
+            <div class="toggle-row"><div class="lbl">AI-перевод</div><div class="toggle-switch on" id="otog-aitranslate" onclick="toggleOTog('aitranslate')"></div></div>
+            <div class="toggle-row"><div class="lbl">AI-предсказания</div><div class="toggle-switch" id="otog-aipredict" onclick="toggleOTog('aipredict')"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="editor-right">
+        <div class="os-preview-phone">
+          <div class="os-screen" id="os-preview-screen"></div>
+        </div>
+        <div style="margin-top:20px; display:flex; gap:10px;">
+          <button class="btn btn-secondary" style="padding:14px 24px;" onclick="closeModal('os-designer')">Отмена</button>
+          <button class="btn btn-primary" style="padding:14px 32px;" onclick="startOSProject()">🚀 Разработка ОС</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="research-modal" class="modal-mask">
+  <div class="modal huge">
+    <div id="research-header">
+      <h2>🔬 Исследования</h2>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <button id="buy-all-btn" onclick="buyAllBest()">⚡ Купить лучшее</button>
+        <div id="research-points-badge">⭐ <span id="research-points-val">0</span></div>
+      </div>
+    </div>
+    <div id="research-tabs">
+      <button class="r-tab active" data-tab="general" onclick="switchRTab('general')">⚙️ Общее</button>
+      <button class="r-tab" data-tab="display" onclick="switchRTab('display')">📺 Дисплей</button>
+      <button class="r-tab" data-tab="camera" onclick="switchRTab('camera')">📷 Камеры</button>
+      <button class="r-tab" data-tab="battery" onclick="switchRTab('battery')">🔋 Батареи</button>
+      <button class="r-tab" data-tab="chip" onclick="switchRTab('chip')">⚙️ Чипы</button>
+      <button class="r-tab" data-tab="os" onclick="switchRTab('os')">💻 ОС</button>
+      <button class="r-tab" data-tab="design" onclick="switchRTab('design')">🎨 Дизайн</button>
+      <button class="r-tab" data-tab="advanced" onclick="switchRTab('advanced')">🚀 Будущее</button>
+    </div>
+    <div id="research-content" onclick="handleResearchClick(event)"></div>
+  </div>
+</div>
+
+<div id="staff-modal" class="modal-mask"><div class="modal wide"><div style="padding:20px 30px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;"><h2 style="margin:0;">👥 Сотрудники</h2><button class="btn btn-secondary" style="width:auto; padding:10px 20px;" onclick="closeModal('staff-modal')">Закрыть</button></div><div id="staff-body"><div id="staff-stats"></div><div class="staff-grid"><div class="staff-col"><h3>Команда (<span id="staff-count">0</span>)</h3><div id="staff-workers"></div></div><div class="staff-col"><h3>Нанять</h3><div id="staff-hire"></div></div></div></div></div></div>
+
+<div id="awards-modal" class="modal-mask"><div class="modal wide"><div style="padding:20px 30px; border-bottom:1px solid var(--border);"><h2 style="margin:0;">🏆 Награды</h2></div><div style="padding:22px 30px; max-height:70vh; overflow-y:auto;"><div style="display:flex; flex-wrap:wrap; gap:16px;" id="awards-list"></div></div><div class="btn-row" style="padding:0 30px 22px;"><button class="btn btn-secondary" onclick="closeModal('awards-modal')">Закрыть</button></div></div></div>
+
+<div id="vk-modal" class="modal-mask"><div class="modal wide"><div style="padding:20px 30px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;"><h2 style="margin:0;">👥 Соцсеть</h2><button class="btn btn-secondary" style="width:auto; padding:10px 20px;" onclick="closeModal('vk-modal')">Закрыть</button></div><div id="vk-content" style="padding:22px 30px; max-height:70vh; overflow-y:auto;"></div></div></div>
+
+<div id="companies-modal" class="modal-mask"><div class="modal wide"><h2>🏢 Другие компании</h2><div id="companies-list"></div><div class="btn-row"><button class="btn btn-secondary" onclick="closeModal('companies-modal')">Закрыть</button></div></div></div>
+<div id="office-upgrade-modal" class="modal-mask"><div class="modal wide"><h2>🏢 Улучшения офиса</h2><div id="office-upgrade-list"></div><div class="btn-row"><button class="btn btn-secondary" onclick="closeModal('office-upgrade-modal')">Закрыть</button></div></div></div>
+
+<div id="copy-modal" class="modal-mask"><div class="modal wide"><h2>📱 Копии телефонов</h2><h3>Партнёр</h3><div id="copy-partners" style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:12px 0;"></div><h3>Срок</h3><div id="copy-years" style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:12px 0;"></div><div id="copy-summary" style="padding:16px; background:rgba(0,212,255,0.1); border:1px solid rgba(0,212,255,0.4); border-radius:14px;"></div></div></div>
+
+<div id="license-modal" class="modal-mask"><div class="modal"><h2>💻 Создание ОС</h2><div class="license-choice"><div class="license-card" onclick="createOwnOS()"><div class="lc-icon">🚀</div><div class="lc-name">Своя ОС</div><div class="lc-price">Бесплатно</div></div><div class="license-card" onclick="buyOSLicense('ios')"><div class="lc-icon">🍎</div><div class="lc-name">PineOS</div><div class="lc-price">$5000</div></div><div class="license-card" onclick="buyOSLicense('android')"><div class="lc-icon">🤖</div><div class="lc-name">Samsun OS</div><div class="lc-price">$3000</div></div><div class="license-card" onclick="buyOSLicense('noros')"><div class="lc-icon">🔧</div><div class="lc-name">Без ОС</div><div class="lc-price">$0</div></div></div><div class="btn-row"><button class="btn btn-secondary" onclick="closeModal('license-modal')">Отмена</button></div></div></div>
+
+<div id="payment-modal" class="modal-mask"><div class="modal"><h2>💰 Оплата разработки</h2><div id="payment-info"></div><div class="btn-row"><button class="btn btn-secondary" onclick="closeModal('payment-modal')">Отмена</button><button class="btn btn-primary" id="payment-btn">💰 Оплатить</button></div></div></div>
+
+<div id="marketing" class="modal-mask"><div class="modal"><h2>📢 Маркетинг</h2><div class="slot" onclick="doMarketing(500, 5)"><div class="slot-title">Мелкая реклама — $500</div><div class="slot-info">+5% к спросу</div></div><div class="slot" onclick="doMarketing(2000, 15)"><div class="slot-title">Средняя реклама — $2000</div><div class="slot-info">+15% к спросу</div></div><div class="slot" onclick="doMarketing(8000, 40)"><div class="slot-title">ТВ-кампания — $8000</div><div class="slot-info">+40% к спросу</div></div><div class="btn-row"><button class="btn btn-secondary" onclick="closeModal('marketing')">Закрыть</button></div></div></div>
+
+<div id="devices-modal" class="modal-mask"><div class="modal wide"><h2>📱 Устройства</h2><div id="devices-list"></div><div class="btn-row"><button class="btn btn-secondary" onclick="closeModal('devices-modal')">Закрыть</button></div></div></div>
+
+<div id="esc-menu" class="modal-mask"><div class="modal" style="width:400px;"><h2>⏸ Пауза</h2><div class="menu-row"><div class="menu-btn-row primary" onclick="escResume()">▶ Продолжить</div><div class="menu-btn-row success" onclick="escDownloadSave()">🔒 Скачать сохранение</div><div class="menu-btn-row" onclick="escSave()">💾 Сохранить и выйти</div><div class="menu-btn-row danger" onclick="escExit()">🚪 Выйти без сохранения</div></div></div></div>
+
+<div id="admin-modal" class="modal-mask"><div class="modal"><h2>🔐 Админ-панель</h2><div id="admin-login"><div class="admin-field"><label>Пароль</label><input type="password" id="admin-pass" placeholder="Введите пароль"></div><div class="btn-row"><button class="btn btn-secondary" onclick="closeModal('admin-modal')">Отмена</button><button class="btn btn-primary" onclick="adminLogin()">Войти</button></div></div><div id="admin-panel" style="display:none;"><div id="admin-status" class="admin-status"></div><div class="admin-section"><h4>💰 Экономика</h4><div class="admin-field"><label>Деньги</label><input type="number" id="adm-money" value="1000000"></div><button class="admin-btn primary" onclick="adminGiveMoney()">Выдать</button><button class="admin-btn success" onclick="adminSetMoney(100000000)">$100M</button><button class="admin-btn success" onclick="adminSetMoney(1000000000)">$1B</button><div class="admin-field" style="margin-top:10px;"><label>Очки</label><input type="number" id="adm-points" value="10000"></div><button class="admin-btn primary" onclick="adminGivePoints()">Выдать</button><button class="admin-btn success" onclick="adminSetPoints(1000000)">⭐1M</button></div><div class="admin-section"><h4>📅 Время</h4><div class="admin-field"><label>Год</label><input type="number" id="adm-year" min="2004" max="2070" value="2026"></div><button class="admin-btn primary" onclick="adminSetYear()">Установить</button><button class="admin-btn success" onclick="adminAdvanceYears(10)">+10 лет</button></div><div class="admin-section"><h4>⚡ Исследования</h4><button class="admin-btn success" onclick="adminUnlockAll()">Разблокировать ВСЁ</button></div><div class="admin-section"><h4>🏢 Офис</h4><button class="admin-btn success" onclick="adminFillOffice()">Заполнить</button><button class="admin-btn primary" onclick="adminMaxOffice()">Офис ур.8</button></div><div class="admin-section"><h4>🏆 Награды</h4><button class="admin-btn primary" onclick="adminGiveAward()">Выдать награду</button></div><div class="admin-section"><h4>⚠️ Опасное</h4><button class="admin-btn danger" onclick="adminResetAll()">Удалить все слоты</button></div><div class="btn-row"><button class="btn btn-secondary" onclick="closeModal('admin-modal')">Закрыть</button></div></div></div></div>
+
+<div id="sim-welcome"><h2>Симулятор ОС</h2><div class="sub">Выберите операционную систему</div><div class="ose-list" id="ose-list"></div><button onclick="closeOSEList()" style="margin-top:20px; padding:12px 28px; background:rgba(255,255,255,0.1); border:1px solid var(--border); border-radius:14px; color:var(--text); cursor:pointer; font-family:inherit; font-size:14px; font-weight:800;">Отмена</button></div>
+
+<div id="sim"><div style="position:relative;"><button id="sim-exit" onclick="closeSim()">✕ Закрыть</button><div id="sim-phone"><div id="sim-screen"><div class="sim-status" id="sim-status"></div><div class="sim-lock" id="sim-lock"></div><div class="sim-home" id="sim-home"></div><div class="sim-app-view" id="sim-app-view"></div></div></div></div></div>
+
+<input type="file" id="file-import" style="display:none" accept=".json" onchange="handleFileImport(event)">
+
+<script>
+const STORAGE_KEY = 'create_device_v1';
+const ENCRYPT_SALT = 'cd_2025_v1';
+const ENCRYPT_ITERATIONS = 100000;
+const GAME_START_YEAR = 2004, GAME_END_YEAR = 2070;
+const SECONDS_PER_DAY = 0.8;
+const DAYS_PER_MONTH = [31,28,31,30,31,30,31,31,30,31,30,31];
+const MONTHS_RU = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+const SAVE_FORMAT_VERSION = 10;
+const ADMIN_PASSWORD = 'Dingo700';
+const POINTS_MULTIPLIER = 0.1;
+
+const _KEY_CACHE = { key: null };
+async function getCryptoKey() {
+  if (_KEY_CACHE.key) return _KEY_CACHE.key;
+  const enc = new TextEncoder();
+  const baseKey = await crypto.subtle.importKey('raw', enc.encode(ENCRYPT_SALT + '_cd_' + ADMIN_PASSWORD), 'PBKDF2', false, ['deriveKey']);
+  const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt: enc.encode(ENCRYPT_SALT), iterations: ENCRYPT_ITERATIONS, hash: 'SHA-256' }, baseKey, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+  _KEY_CACHE.key = key;
+  return key;
+}
+async function encryptSave(data) { const enc = new TextEncoder(); const key = await getCryptoKey(); const iv = crypto.getRandomValues(new Uint8Array(12)); const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(JSON.stringify(data))); return { encrypted: true, iv: btoa(String.fromCharCode(...iv)), data: btoa(String.fromCharCode(...new Uint8Array(ct))) }; }
+async function decryptSave(blob) { if (!blob || !blob.encrypted) throw new Error('Not encrypted'); const key = await getCryptoKey(); const ct = Uint8Array.from(atob(blob.data), c => c.charCodeAt(0)); const iv = Uint8Array.from(atob(blob.iv), c => c.charCodeAt(0)); const dec = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ct); return JSON.parse(new TextDecoder().decode(dec)); }
+
+const RESEARCH_ITEMS = [];
+const CATS = [
+  { id: 'general', icon: '⚙️', name: 'Общее', items: 500 },
+  { id: 'display', icon: '📺', name: 'Дисплей', items: 300 },
+  { id: 'camera', icon: '📷', name: 'Камеры', items: 300 },
+  { id: 'battery', icon: '🔋', name: 'Батареи', items: 300 },
+  { id: 'chip', icon: '⚙️', name: 'Чипы', items: 300 },
+  { id: 'os', icon: '💻', name: 'ОС', items: 300 },
+  { id: 'design', icon: '🎨', name: 'Дизайн', items: 300 },
+  { id: 'advanced', icon: '🚀', name: 'Будущее', items: 200 },
+];
+const NAMES = {
+  general: ['Скорость','Оптимизация','Эффективность','Модуль','Система','Улучшение','Технология','Процесс','Ядро','Контроль'],
+  display: ['AMOLED','LCD','OLED','MiniLED','MicroLED','LTPO','Частота','Яркость','Контраст','Цвет'],
+  camera: ['Сенсор','Линза','Стабилизация','Ночной','Портрет','Зум','AI','Обработка','HDR','8K'],
+  battery: ['Li-Ion','Li-Po','Solid','Graphene','Быстрая','Беспроводная','Обратная','Экономия','Ёмкость','Плотность'],
+  chip: ['ARM','x86','RISC-V','Нейро','GPU','CPU','NPU','ISP','5nm','3nm'],
+  os: ['Ядро','Оболочка','Драйвер','Библиотека','API','SDK','Оптимизация','Кэш','Фоновые','Мультизадачность'],
+  design: ['Корпус','Рамка','Стекло','Титан','Керамика','Алюминий','Карбон','Тонкость','Вес','Баланс'],
+  advanced: ['Квантовый','Нейро','Фотонный','Варп','Портальный','Телепортация','Телепатия','Голо','Сингулярность','Антиматерия'],
+};
+CATS.forEach(cat => {
+  for (let i = 0; i < cat.items; i++) {
+    const n = NAMES[cat.id] || NAMES.general;
+    const base = n[i % n.length];
+    RESEARCH_ITEMS.push({ id: cat.id + '_' + i, section: cat.id, icon: cat.icon, title: `${base} v${Math.floor(i/10) + 1}.${i % 10}`, desc: `Улучшение: ${base.toLowerCase()}`, year: 2004 + Math.floor(i / (cat.items / 25)), cost: 20 + i * 5 + (cat.id === 'advanced' ? 2000 : 0), maxLevel: 1, unlockType: 'feature', value: i });
+  }
+});
+
+const COMPETITORS = [
+  { id: 'pineapple', name: 'Pineapple', color: '#e5e5e5', emoji: '🍎', shareBase: 28, desc: 'Премиум' },
+  { id: 'samsun', name: 'Samsun', color: '#1a5fd6', emoji: '📱', shareBase: 23, desc: 'Корея' },
+  { id: 'noname', name: 'No.Name', color: '#666', emoji: '📟', shareBase: 14, desc: 'Дешёвый' },
+  { id: 'xiomi', name: 'Xiomi', color: '#ff6900', emoji: '🔶', shareBase: 11, desc: 'Китай' },
+  { id: 'huawee', name: 'Huawee', color: '#c8102e', emoji: '🌸', shareBase: 9, desc: 'Технологии' },
+  { id: 'gogle', name: 'Gogle', color: '#4285f4', emoji: '🔵', shareBase: 7, desc: 'ОС' },
+];
+const COPY_PARTNERS = [
+  { id: 'budget', name: 'Малый завод', emoji: '🏠', quality: 0.5, logistics: 0.4, basePrice: 50000 },
+  { id: 'mid', name: 'Средний', emoji: '🏢', quality: 0.7, logistics: 0.7, basePrice: 300000 },
+  { id: 'premium', name: 'Премиум', emoji: '🏭', quality: 0.9, logistics: 0.9, basePrice: 1500000 },
+  { id: 'china', name: 'Китай-Мега', emoji: '🇨🇳', quality: 0.6, logistics: 0.95, basePrice: 200000 },
+  { id: 'premium_eu', name: 'Евро-Люкс', emoji: '🇪🇺', quality: 0.95, logistics: 0.8, basePrice: 2500000 },
+  { id: 'budget_india', name: 'Индия-Старт', emoji: '🇮🇳', quality: 0.4, logistics: 0.5, basePrice: 30000 },
+];
+const COPY_YEARS = [{ years: 1, mult: 1.0 },{ years: 2, mult: 1.3 },{ years: 3, mult: 1.7 },{ years: 5, mult: 2.5 },{ years: 10, mult: 4.0 },{ years: 20, mult: 7.0 }];
+const OFFICE_LEVELS = [
+  { level: 1, name: 'Гараж', maxWorkers: 3, ptsBonus: 1.0, cost: 0, pointsCost: 0 },
+  { level: 2, name: 'Малый офис', maxWorkers: 6, ptsBonus: 1.2, cost: 50000, pointsCost: 100 },
+  { level: 3, name: 'Офис', maxWorkers: 10, ptsBonus: 1.5, cost: 200000, pointsCost: 300 },
+  { level: 4, name: 'Крупный офис', maxWorkers: 15, ptsBonus: 1.8, cost: 800000, pointsCost: 800 },
+  { level: 5, name: 'Бизнес-центр', maxWorkers: 22, ptsBonus: 2.2, cost: 3000000, pointsCost: 2000 },
+  { level: 6, name: 'Небоскрёб', maxWorkers: 30, ptsBonus: 2.7, cost: 12000000, pointsCost: 5000 },
+  { level: 7, name: 'Кампус', maxWorkers: 40, ptsBonus: 3.3, cost: 50000000, pointsCost: 12000 },
+  { level: 8, name: 'Технопарк', maxWorkers: 55, ptsBonus: 4.0, cost: 200000000, pointsCost: 30000 },
+];
+const COUNTRIES = {
+  araulia: { name: 'Араулия', flag: '🏔️', desc: 'Горная', budgets: [{key:'low',amount:28000000,label:'Старт'},{key:'mid',amount:65000000,label:'Стандарт'},{key:'high',amount:105000000,label:'Пром'}] },
+  veldoria: { name: 'Велдория', flag: '🌲', desc: 'Лесная', budgets: [{key:'low',amount:22000000,label:'Малый'},{key:'mid',amount:55000000,label:'Средний'},{key:'high',amount:95000000,label:'Крупный'}] },
+  kasmaria: { name: 'Касмария', flag: '🏜️', desc: 'Пустыня', budgets: [{key:'low',amount:18000000,label:'Малый'},{key:'mid',amount:42000000,label:'Средний'},{key:'high',amount:78000000,label:'Крупный'}] },
+  norvexa: { name: 'Норвекса', flag: '❄️', desc: 'Север', budgets: [{key:'low',amount:35000000,label:'Малый'},{key:'mid',amount:80000000,label:'Средний'},{key:'high',amount:130000000,label:'Премиум'}] },
+};
+const COLORS = ['#000000','#ffffff','#1a1a1a','#2a2a2a','#ef4444','#f97316','#fbbf24','#10b981','#06b6d4','#00d4ff','#3b82f6','#7c3aed','#ec4899','#c084fc','#94a3b8'];
+const WORKER_NAMES = ['Алексей','Мария','Иван','Ольга','Дмитрий','Анна','Сергей','Елена','Павел','Оксана'];
+const WORKER_EMOJIS = ['👨‍💻','👩‍💻','👨‍🔬','👩‍🔬','👨‍🎨','👩‍🎨'];
+const WORKER_ROLES = [
+  { role: 'Инженер', ptsPerSec: 0.15, cost: 5000 },
+  { role: 'Дизайнер', ptsPerSec: 0.25, cost: 8000 },
+  { role: 'Программист', ptsPerSec: 0.35, cost: 12000 },
+  { role: 'Ведущий', ptsPerSec: 0.5, cost: 20000 },
+];
+
+let state = null, gameLoopHandle = null, lastFrame = 0, paused = false, speedMultiplier = 1;
+let pendingSlot = null, selectedCountry = null, selectedBudget = null;
+let currentRTab = 'general', adminAuthorized = false, vkTab = 'feed';
+let currentETab = 'main', currentOTab = 'main';
+let simState = { locked: true, currentOS: null, style: null, enteredPass: '' };
+let selectedCopyP = null, selectedCopyY = null;
+let designerColor = '#00d4ff';
+let deviceToggles = { aod: false, hdr: true, ois: true, night: true, '8k': false, aicam: false, wireless: true, reverse: false, '5g': true, nfc: true, ip68: true, satellite: false, uwb: false, ir: false, finger: true, faceid: true, stereo: true, hifi: false, stylus: false };
+let osToggles = { date: true, weather: true, dock: true, assistant: true, aicam: true, aitranslate: true, aipredict: false };
+
+function $(id) { return document.getElementById(id); }
+function safeNum(n, d) { n = Number(n); return isFinite(n) ? n : (d || 0); }
+function fmtMoney(n) { n = Math.round(safeNum(n)); if (n >= 1e9) return (n/1e9).toFixed(2) + ' млрд'; if (n >= 1e6) return (n/1e6).toFixed(2) + ' млн'; if (n >= 1e3) return (n/1e3).toFixed(1) + ' тыс'; return String(n); }
+function fmtDate(y, m, d) { y = safeNum(y, 2004); m = Math.max(0, Math.min(11, safeNum(m, 0))); d = Math.max(1, safeNum(d, 1)); return d + ' ' + MONTHS_RU[m] + ' ' + y; }
+function escapeHtml(s) { return String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+function toast(text, color) { const n = document.createElement('div'); n.className = 'notif'; if (color === 'success') n.classList.add('success'); else if (color === 'error') n.classList.add('error'); else if (color === 'yellow') n.classList.add('event'); n.textContent = text; $('notifs').appendChild(n); setTimeout(() => { n.style.opacity = '0'; n.style.transition = 'opacity 0.4s'; }, 3200); setTimeout(() => n.remove(), 3700); }
+function showUnlocked(text) { const b = $('unlocked-banner'); b.textContent = '✨ ' + text; b.classList.add('show'); setTimeout(() => b.classList.remove('show'), 3000); }
+function showModal(id) { $(id).classList.add('active'); }
+function closeModal(id) { $(id).classList.remove('active'); }
+function closeAllModals() { document.querySelectorAll('.modal-mask.active').forEach(m => m.classList.remove('active')); }
+function updateClock() { const d = new Date(); $('tb-clock').textContent = 'Create Device 1.0 • ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'); }
+setInterval(updateClock, 10000); updateClock();
+function shadeColor(hex, percent) { let c = (hex||'#000000').replace('#',''); if (c.length === 3) c = c.split('').map(x => x + x).join(''); if (c.length !== 6) return '#000000'; let r = parseInt(c.substr(0,2),16), g = parseInt(c.substr(2,2),16), b = parseInt(c.substr(4,2),16); r = Math.max(0,Math.min(255,r+percent)); g = Math.max(0,Math.min(255,g+percent)); b = Math.max(0,Math.min(255,b+percent)); return '#' + [r,g,b].map(x => x.toString(16).padStart(2,'0')).join(''); }
+
+function getPurchased(id) { if (!state || !state.research) return 0; return safeNum(state.research[id], 0); }
+function hasResearch(id) { return getPurchased(id) > 0; }
+
+function loadSlots() { try { const raw = localStorage.getItem(STORAGE_KEY); if (!raw) return [null,null,null]; const p = JSON.parse(raw); return Array.isArray(p) ? p : [null,null,null]; } catch(e) { return [null,null,null]; } }
+function writeSlots(a) { localStorage.setItem(STORAGE_KEY, JSON.stringify(a)); }
+async function saveToSlot(idx) { try { const enc = await encryptSave(JSON.parse(JSON.stringify(state))); const slots = loadSlots(); slots[idx] = { __encrypted: true, blob: enc, savedAt: new Date().toISOString(), meta: { name: state.company.name, year: state.year } }; writeSlots(slots); toast('🔒 Сохранено', 'success'); } catch(e) { toast('❌ Ошибка', 'error'); } }
+async function loadSlot(s) { if (!s || !s.__encrypted || !s.blob) return null; try { return await decryptSave(s.blob); } catch(e) { toast('❌ Не расшифровать', 'error'); return null; } }
+async function exportSave() { if (!state) return; try { const enc = await encryptSave(state); const payload = { format: 'create-device-save', version: SAVE_FORMAT_VERSION, savedAt: new Date().toISOString(), meta: { name: state.company.name, year: state.year }, payload: enc }; const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'create_device_' + (state.company?.name || 'c') + '_' + state.year + '.json'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); toast('🔒 Файл сохранён', 'success'); } catch(e) { toast('❌', 'error'); } }
+function importSaveFile() { $('file-import').click(); }
+function readFileText(f) { return new Promise((res, rej) => { const r = new FileReader(); r.onload = e => res(e.target.result); r.onerror = () => rej(new Error('File read')); r.readAsText(f); }); }
+async function handleFileImport(e) {
+  const file = e.target.files && e.target.files[0]; if (!file) return;
+  const input = e.target; setTimeout(() => { try { input.value = ''; } catch(x) {} }, 100);
+  try {
+    const text = await readFileText(file); if (!text) { toast('❌ Пустой', 'error'); return; }
+    let data; try { data = JSON.parse(text); } catch(x) { toast('❌ Не JSON', 'error'); return; }
+    if (!data.format || !data.payload) { toast('❌ Неверный формат', 'error'); return; }
+    toast('🔓 Расшифровка...', 'blue');
+    let dec; try { dec = await decryptSave(data.payload); } catch(x) { toast('❌ Не расшифровать', 'error'); return; }
+    if (!dec || !dec.company) { toast('❌ Повреждено', 'error'); return; }
+    const slots = loadSlots(); let slot = -1;
+    for (let i = 0; i < slots.length; i++) if (!slots[i] || !slots[i].__encrypted) { slot = i; break; }
+    if (slot === -1) { if (!confirm('Все слоты заняты. Заменить слот 1?')) return; slot = 0; }
+    const enc = await encryptSave(dec);
+    slots[slot] = { __encrypted: true, blob: enc, savedAt: new Date().toISOString(), meta: { name: dec.company.name, year: dec.year } };
+    writeSlots(slots);
+    toast('✅ Импортировано в слот ' + (slot + 1), 'success');
+    closeAllModals(); setTimeout(() => openContinue(), 100);
+  } catch(err) { toast('❌ Ошибка: ' + err.message, 'error'); }
+}
+
+function openNewGame() {
+  const slots = loadSlots(); const box = $('new-slots'); box.innerHTML = '';
+  slots.forEach((s, i) => {
+    const el = document.createElement('div'); el.className = 'slot';
+    el.innerHTML = `<div class="slot-title">Слот ${i+1}</div><div class="slot-info">${s && s.meta ? s.meta.name + ' • ' + s.meta.year + ' • 🔒' : 'Пусто'}</div>`;
+    el.onclick = () => { if (s && !confirm('Занят. Перезаписать?')) return; pendingSlot = i; closeModal('slot-new'); openCompanySetup(); };
+    box.appendChild(el);
+  });
+  showModal('slot-new');
+}
+function openContinue() {
+  const slots = loadSlots(); const box = $('cont-slots'); box.innerHTML = ''; let any = false;
+  for (let i = 0; i < slots.length; i++) {
+    const s = slots[i]; if (!s || !s.__encrypted || !s.blob) continue;
+    any = true;
+    const el = document.createElement('div'); el.className = 'slot';
+    el.innerHTML = `<div class="slot-title">Слот ${i+1} — ${escapeHtml((s.meta && s.meta.name) || '—')} <span class="encrypted-badge">🔒 AES-256</span></div><div class="slot-info">Год: ${safeNum(s.meta && s.meta.year, 2004)}</div>`;
+    el.onclick = async () => { closeModal('slot-continue'); toast('🔓 Загрузка...', 'blue'); const d = await loadSlot(s); if (d) startGame(d, i); else toast('❌ Не удалось', 'error'); };
+    box.appendChild(el);
+  }
+  if (!any) box.innerHTML = '<div class="hint" style="padding:16px;">Нет сохранений.</div>';
+  showModal('slot-continue');
+}
+
+function openCompanySetup() {
+  selectedCountry = null; selectedBudget = null;
+  $('inp-company-name').value = ''; $('budget-section').style.display = 'none';
+  const grid = $('country-grid'); grid.innerHTML = '';
+  Object.entries(COUNTRIES).forEach(([key, c]) => {
+    const el = document.createElement('div'); el.className = 'country-card';
+    el.innerHTML = `<div class="cc-flag">${c.flag}</div><div class="cc-name">${c.name}</div><div class="cc-desc">${c.desc}</div>`;
+    el.onclick = () => selectCountry(key);
+    grid.appendChild(el);
+  });
+  showModal('company-setup');
+}
+function selectCountry(key) {
+  selectedCountry = key; selectedBudget = null;
+  document.querySelectorAll('.country-card').forEach((el, i) => el.classList.toggle('selected', Object.keys(COUNTRIES)[i] === key));
+  const bg = $('budget-grid'); bg.innerHTML = '';
+  COUNTRIES[key].budgets.forEach(b => {
+    const el = document.createElement('div'); el.className = 'budget-card';
+    el.innerHTML = `<div class="bc-amt">$${fmtMoney(b.amount)}</div><div class="bc-lbl">${b.label}</div>`;
+    el.onclick = () => selectBudget(b.key);
+    bg.appendChild(el);
+  });
+  $('budget-section').style.display = 'block';
+}
+function selectBudget(key) { selectedBudget = key; document.querySelectorAll('.budget-card').forEach((el, i) => el.classList.toggle('selected', COUNTRIES[selectedCountry].budgets[i].key === key)); }
+function confirmCompany() {
+  const name = $('inp-company-name').value.trim();
+  if (!name) { toast('Введите название!', 'yellow'); return; }
+  if (!selectedCountry || !selectedBudget) { toast('Выберите страну и бюджет!', 'yellow'); return; }
+  const color = $('inp-company-color').value;
+  const c = COUNTRIES[selectedCountry];
+  const money = c.budgets.find(b => b.key === selectedBudget).amount;
+  const newState = createInitialState(name, color, selectedCountry, money);
+  closeModal('company-setup'); startGame(newState, pendingSlot);
+}
+function createInitialState(name, color, countryKey, money) {
+  const c = COUNTRIES[countryKey];
+  return {
+    company: { name, color, rep: 50 }, country: { key: countryKey, name: c.name, flag: c.flag },
+    year: GAME_START_YEAR, month: 0, day: 1, money, points: 0,
+    devices: [], oses: [], totalSold: 0, dailyIncome: 0,
+    marketingBoost: 0, marketingDays: 0,
+    feed: [{ author: 'PulseNet', text: 'Компания ' + name + ' основана!', type: 'event', time: 'День 1' }],
+    slot: pendingSlot || 0, saveFormat: SAVE_FORMAT_VERSION,
+    workers: [], hirePool: generateHirePool(), projects: [], licenses: { ios: false, android: false },
+    speed: 1, research: {}, awards: [], officeLevel: 1,
+    socialChannel: { name: name + ' Official', badge: 'none', posts: [], subscribers: 1000 },
+    copies: { active: null, history: [] },
+  };
+}
+function generateHirePool() {
+  const pool = [];
+  for (let i = 0; i < 6; i++) {
+    const r = WORKER_ROLES[Math.floor(Math.random() * WORKER_ROLES.length)];
+    pool.push({ id: 'w_' + Math.random().toString(36).slice(2, 9), name: WORKER_NAMES[Math.floor(Math.random() * WORKER_NAMES.length)], emoji: WORKER_EMOJIS[Math.floor(Math.random() * WORKER_EMOJIS.length)], role: r.role, ptsPerSec: r.ptsPerSec + (Math.random() * 0.1 - 0.05), cost: r.cost + Math.floor(Math.random() * 3000) });
+  }
+  return pool;
+}
+
+function startGame(s, slotIdx) {
+  if (!s) { toast('❌ Ошибка загрузки', 'error'); return; }
+  state = s; state.slot = safeNum(slotIdx, 0);
+  if (state.speed === undefined) state.speed = 1;
+  if (!state.workers) state.workers = [];
+  if (!state.projects) state.projects = [];
+  if (!state.hirePool) state.hirePool = generateHirePool();
+  if (!state.oses) state.oses = [];
+  if (!state.research) state.research = {};
+  if (!state.awards) state.awards = [];
+  if (state.points === undefined) state.points = 0;
+  if (!state.officeLevel) state.officeLevel = 1;
+  if (!state.socialChannel) state.socialChannel = { name: state.company.name + ' Official', badge: 'none', posts: [], subscribers: 1000 };
+  if (!state.socialChannel.posts) state.socialChannel.posts = [];
+  if (!state.devices) state.devices = [];
+  speedMultiplier = state.speed || 1;
+  $('menu').classList.remove('active');
+  $('game-screen').classList.add('active');
+  $('hdr-name').textContent = state.company.name;
+  $('hdr-name').style.color = state.company.color;
+  paused = false;
+  $('btn-pause').textContent = '⏸ Пауза';
+  updateSpeedBtns();
+  renderAll();
+  lastFrame = performance.now();
+  if (gameLoopHandle) cancelAnimationFrame(gameLoopHandle);
+  gameLoopHandle = requestAnimationFrame(gameLoop);
+  setTimeout(() => toast('👋 Добро пожаловать, ' + state.company.name + '!', 'success'), 300);
+}
+function togglePause() { paused = !paused; $('btn-pause').textContent = paused ? '▶ Продолжить' : '⏸ Пауза'; if (!paused) lastFrame = performance.now(); }
+async function saveAndExit() { await saveToSlot(state.slot); if (gameLoopHandle) cancelAnimationFrame(gameLoopHandle); gameLoopHandle = null; $('game-screen').classList.remove('active'); $('menu').classList.add('active'); state = null; }
+function setSpeed(m) { speedMultiplier = m; if (state) state.speed = m; updateSpeedBtns(); }
+function updateSpeedBtns() { document.querySelectorAll('.sp-btn').forEach(b => b.classList.toggle('active', +b.dataset.speed === speedMultiplier)); }
+
+function gameLoop(ts) {
+  if (!state) return;
+  const block = document.querySelector('.modal-mask.active') || $('sim').classList.contains('active');
+  if (!paused && !block) {
+    const dt = Math.min(0.5, (ts - lastFrame) / 1000);
+    const effDt = dt * speedMultiplier;
+    if (effDt >= SECONDS_PER_DAY) {
+      const days = Math.floor(effDt / SECONDS_PER_DAY);
+      for (let i = 0; i < Math.min(days, 10) && state; i++) advanceDay();
+      lastFrame = ts;
+    }
+    tickWorkers(dt * speedMultiplier);
+  } else lastFrame = ts;
+  gameLoopHandle = requestAnimationFrame(gameLoop);
+}
+
+function tickWorkers(sec) {
+  if (!state) return;
+  const office = OFFICE_LEVELS[state.officeLevel - 1] || OFFICE_LEVELS[0];
+  const pts = state.workers.reduce((s, w) => s + safeNum(w.ptsPerSec), 0) * sec * office.ptsBonus * POINTS_MULTIPLIER;
+  state.points = safeNum(state.points) + pts;
+  state.projects.forEach(p => {
+    const need = Math.max(0, p.pointsCost - safeNum(p.pointsHave));
+    if (need > 0) { const t = Math.min(need, pts * 0.8); p.pointsHave = safeNum(p.pointsHave) + t; state.points -= t; }
+    if (p.pointsHave >= p.pointsCost && !p.readyToComplete) { p.readyToComplete = true; updateMainBtn(); toast('✅ Готово: ' + (p.data?.name || 'Проект'), 'success'); }
+  });
+  if (state.copies?.active) {
+    const c = state.copies.active;
+    c.hype = Math.min(100, safeNum(c.hype, 0) + sec * 3);
+    const sold = Math.floor((c.hype / 10) * sec * 8 * safeNum(c.quality, 0.7) * safeNum(c.logistics, 0.7));
+    c.totalSold = safeNum(c.totalSold, 0) + sold;
+    c.totalIncome = safeNum(c.totalIncome, 0) + sold * safeNum(c.profit, 100);
+    state.money = safeNum(state.money) + sold * safeNum(c.profit, 100);
+    if (state.year >= c.untilYear) { state.copies.history.push(c); state.copies.active = null; toast('📱 Контракт завершён', 'yellow'); }
+  }
+  if (state.socialChannel) state.socialChannel.subscribers = safeNum(state.socialChannel.subscribers) + sec * 0.5;
+  updateProgress(); updateOfficeArc(); updateCopyPanel(); updateHud(); updateMainBtn();
+}
+
+function advanceDay() {
+  if (!state) return;
+  state.day = safeNum(state.day, 1) + 1;
+  const md = DAYS_PER_MONTH[state.month] + (state.month === 1 && isLeap(state.year) ? 1 : 0);
+  if (state.day > md) { state.day = 1; state.month++; if (state.month > 11) { state.month = 0; state.year = safeNum(state.year, 2004) + 1; if (state.year > GAME_END_YEAR) endGame(); } }
+  if (state.marketingDays > 0) state.marketingDays--;
+  let inc = 0;
+  (state.devices || []).forEach(d => {
+    const age = Math.max(0, state.year - safeNum(d.yearMade, state.year));
+    const fresh = Math.max(0.15, 1 - age / 2);
+    let dem = safeNum(d.demand, 10) * fresh;
+    if (state.marketingDays > 0) dem += safeNum(state.marketingBoost) * 0.1;
+    const sales = Math.floor(dem / 5 + Math.random() * 3);
+    inc += sales * safeNum(d.profit);
+    state.totalSold = safeNum(state.totalSold) + sales;
+    d.unitsSold = safeNum(d.unitsSold) + sales;
+  });
+  state.money = safeNum(state.money) + inc;
+  updateHud();
+}
+function isLeap(y) { y = safeNum(y, 2004); return (y%4===0 && y%100!==0) || y%400===0; }
+
+function updateHud() {
+  if (!state) return;
+  $('hdr-money').textContent = fmtMoney(state.money);
+  $('hdr-points').textContent = Math.floor(safeNum(state.points));
+  $('hdr-country').textContent = (state.country?.flag || '') + ' ' + (state.country?.name || '');
+  $('hdr-rep').textContent = Math.round(safeNum(state.company?.rep, 50));
+  $('hdr-rank').textContent = Math.max(1, Math.round(20 - safeNum(state.company?.rep, 50) / 10 - state.devices.length * 3));
+  $('hdr-date').textContent = fmtDate(state.year, state.month, state.day);
+  $('hdr-day').textContent = 'ДЕНЬ ' + safeNum(state.day, 1);
+  const office = OFFICE_LEVELS[state.officeLevel - 1] || OFFICE_LEVELS[0];
+  $('office-name').textContent = office.name.toUpperCase();
+  $('room-max').textContent = office.maxWorkers;
+  if ($('research-modal').classList.contains('active')) $('research-points-val').textContent = Math.floor(safeNum(state.points));
+  updateAwardsBadge();
+}
+
+function updateMainBtn() {
+  const btn = $('mainBtn');
+  if (!btn || !state) return;
+  if (state.projects && state.projects.find(p => p.readyToComplete)) { btn.innerHTML = '→'; btn.style.background = 'linear-gradient(135deg, #fbbf24, #f97316)'; btn.title = 'Готово к оплате'; }
+  else { btn.innerHTML = '+'; btn.style.background = 'linear-gradient(135deg, var(--accent), var(--accent-2))'; btn.title = 'Создать'; }
+}
+
+function mainBtnClick() {
+  const r = state.projects.find(p => p.readyToComplete);
+  if (r) { openPayment(r); return; }
+  const pm = $('plus-menu');
+  if (pm.classList.contains('show')) { closePlusMenu(); return; }
+  pm.classList.add('show');
+}
+function closePlusMenu() { const pm = $('plus-menu'); if (pm) pm.classList.remove('show'); }
+function openLicenseChoice() { closeAllModals(); showModal('license-modal'); }
+
+function openAwards() {
+  const list = $('awards-list');
+  if (!state.awards || !state.awards.length) list.innerHTML = '<div class="hint">Пока нет наград.</div>';
+  else list.innerHTML = state.awards.map(a => `<div style="text-align:center; padding:12px;"><div style="font-size:48px;">${a.icon}</div><div style="font-size:11px; color:var(--yellow); font-weight:800; max-width:80px; margin-top:4px;">${escapeHtml(a.catName)}</div><div style="font-size:10px; color:var(--text-dim);">${a.year}</div></div>`).join('');
+  state.awards.forEach(a => a.seen = true);
+  updateAwardsBadge();
+  showModal('awards-modal');
+}
+function updateAwardsBadge() {
+  if (!state) return;
+  const unseen = state.awards.filter(a => !a.seen).length;
+  const b = $('awards-badge');
+  if (unseen > 0) { b.textContent = unseen; b.classList.add('show'); } else b.classList.remove('show');
+  const mini = $('office-awards-mini');
+  if (mini) {
+    const rec = state.awards.slice(-3).reverse();
+    if (!rec.length) mini.innerHTML = '<div class="hint">Нет наград</div>';
+    else mini.innerHTML = rec.map(a => `<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:11px;"><span style="margin-right:6px;">${a.icon}</span>${escapeHtml(a.catName)}</div>`).join('');
+  }
+}
+
+function switchETab(tab) {
+  currentETab = tab;
+  document.querySelectorAll('.e-tab[data-etab]').forEach(t => t.classList.toggle('active', t.dataset.etab === tab));
+  document.querySelectorAll('.editor-tab-content[data-econtent]').forEach(c => c.classList.toggle('active', c.dataset.econtent === tab));
+  if (tab === 'pricing' || tab === 'main') updatePreview();
+}
+function switchOTab(tab) {
+  currentOTab = tab;
+  document.querySelectorAll('.e-tab[data-otab]').forEach(t => t.classList.toggle('active', t.dataset.otab === tab));
+  document.querySelectorAll('.editor-tab-content[data-ocontent]').forEach(c => c.classList.toggle('active', c.dataset.ocontent === tab));
+  renderOSPreview();
+}
+function toggleTog(key) { deviceToggles[key] = !deviceToggles[key]; const el = $('tog-' + key); if (el) el.classList.toggle('on', deviceToggles[key]); if (currentETab === 'pricing' || currentETab === 'main') updatePreview(); }
+function toggleOTog(key) { osToggles[key] = !osToggles[key]; const el = $('otog-' + key); if (el) el.classList.toggle('on', osToggles[key]); renderOSPreview(); }
+
+function openDesigner() {
+  if (!state.workers.length) { toast('Наймите сотрудника!', 'yellow'); return; }
+  const cp = $('color-picker'); cp.innerHTML = '';
+  COLORS.forEach(c => {
+    const sw = document.createElement('div');
+    sw.className = 'swatch' + (c === designerColor ? ' selected' : '');
+    sw.style.background = c;
+    sw.onclick = () => { designerColor = c; cp.querySelectorAll('.swatch').forEach(x => x.classList.remove('selected')); sw.classList.add('selected'); updatePreview(); };
+    cp.appendChild(sw);
+  });
+  const osSel = $('dev-os');
+  osSel.innerHTML = '<option value="none">Без ОС</option>';
+  state.oses.forEach((os, i) => { osSel.innerHTML += `<option value="own_${i}">${escapeHtml(os.name)}</option>`; });
+  if (state.licenses.ios) osSel.innerHTML += '<option value="ios">PineOS</option>';
+  if (state.licenses.android) osSel.innerHTML += '<option value="android">Samsun OS</option>';
+  osSel.value = state.oses.length ? 'own_0' : 'none';
+  $('dev-name').value = 'Nova ' + (state.devices.length + 1);
+  ['spec-screen','spec-hz','spec-cam','spec-bat','spec-charge','spec-bright','spec-frontcam','spec-cores','spec-ram','dev-price','dev-name','spec-mat','dev-os','spec-form','spec-rom','spec-res','spec-matrix','spec-cpu','spec-wifi','spec-bt'].forEach(id => {
+    const el = $(id); if (el) { el.oninput = updatePreview; el.onchange = updatePreview; }
+  });
+  currentETab = 'main'; switchETab('main');
+  updatePreview(); showModal('device-designer');
+}
+function calcDeviceScore() {
+  let score = 0;
+  score += Math.min(15, (+$('spec-screen').value - 2) * 2.5);
+  score += Math.min(12, (+$('spec-hz').value - 60) / 8.75);
+  score += Math.min(15, Math.sqrt(+$('spec-cam').value) * 1.5);
+  score += Math.min(10, (+$('spec-bat').value - 1000) / 800);
+  score += Math.min(8, (+$('spec-charge').value - 5) / 30);
+  score += Math.min(8, (+$('spec-bright').value - 200) / 200);
+  score += Math.min(10, (+$('spec-ram').value - 2) / 3);
+  score += Math.min(8, (+$('spec-cores').value - 4) / 1.5);
+  score += Math.min(5, Math.sqrt(+$('spec-frontcam').value) * 0.7);
+  const mat = { 'Пластик': 0, 'Стекло': 3, 'Металл': 5, 'Титан': 8, 'Керамика': 10 }[$('spec-mat').value] || 0;
+  score += mat;
+  Object.values(deviceToggles).forEach(v => { if (v) score += 0.5; });
+  const resBonus = { 'HD': 0, 'FHD': 2, '2K': 4, '4K': 6, '8K': 8 }[$('spec-res').value] || 0;
+  score += resBonus;
+  const matrixBonus = { 'LCD': 0, 'OLED': 3, 'AMOLED': 5, 'LTPO AMOLED': 7 }[$('spec-matrix').value] || 0;
+  score += matrixBonus;
+  return Math.min(100, Math.round(score));
+}
+function calcDeviceCost() {
+  let cost = 20;
+  cost += (+$('spec-screen').value) * 15;
+  cost += (+$('spec-hz').value) * 0.5;
+  cost += (+$('spec-cam').value) * 1.5;
+  cost += (+$('spec-bat').value) * 0.02;
+  cost += (+$('spec-charge').value) * 0.5;
+  cost += (+$('spec-ram').value) * 5;
+  cost += (+$('spec-cores').value) * 3;
+  const matMult = { 'Пластик': 1, 'Стекло': 1.2, 'Металл': 1.5, 'Титан': 2.2, 'Керамика': 2.8 }[$('spec-mat').value] || 1;
+  cost *= matMult;
+  Object.values(deviceToggles).forEach(v => { if (v) cost += 15; });
+  return Math.round(cost);
+}
+function updatePreview() {
+  $('screen-val').textContent = (+$('spec-screen').value).toFixed(1) + '"';
+  $('hz-val').textContent = $('spec-hz').value + ' Гц';
+  $('cam-val').textContent = $('spec-cam').value;
+  $('bat-val').textContent = $('spec-bat').value;
+  $('charge-val').textContent = $('spec-charge').value;
+  $('bright-val').textContent = $('spec-bright').value;
+  $('frontcam-val').textContent = $('spec-frontcam').value;
+  $('cores-val').textContent = $('spec-cores').value;
+  $('ram-val').textContent = $('spec-ram').value;
+  $('price-val').textContent = '$' + $('dev-price').value;
+  const score = calcDeviceScore();
+  const cost = calcDeviceCost();
+  const profit = Math.max(0, +$('dev-price').value - cost);
+  const margin = +$('dev-price').value > 0 ? Math.round(profit / +$('dev-price').value * 100) : 0;
+  if ($('pv-score')) {
+    $('pv-score').textContent = score;
+    $('pv-cost').textContent = '$' + fmtMoney(cost);
+    $('pv-profit').textContent = '$' + fmtMoney(profit);
+    $('pv-margin').textContent = margin + '%';
+    $('pv-score').className = 'psv ' + (score > 70 ? 'good' : score > 40 ? '' : 'bad');
+    $('pv-margin').className = 'psv ' + (margin > 30 ? 'good' : margin > 10 ? '' : 'bad');
+  }
+  const ph = $('preview-phone');
+  const form = $('spec-form').value;
+  let radius = '42px';
+  if (form === 'Плоская (iPhone 4)') radius = '16px';
+  else if (form === 'Складная') radius = '24px';
+  else if (form === 'Изогнутая') radius = '50px';
+  ph.style.borderRadius = radius;
+  $('preview-screen').style.background = `linear-gradient(135deg, ${designerColor} 0%, ${shadeColor(designerColor, -50)} 100%)`;
+  $('preview-screen').innerHTML = `
+    <div class="brand">${escapeHtml(state.company.name.slice(0, 10).toUpperCase())}</div>
+    <div class="model">${escapeHtml($('dev-name').value)}</div>
+    <div class="spec-badges">
+      <div class="sb">📱 ${(+$('spec-screen').value).toFixed(1)}"</div>
+      <div class="sb">⚡ ${$('spec-hz').value} Гц</div>
+      <div class="sb">📷 ${$('spec-cam').value} Мп</div>
+      <div class="sb">🔋 ${$('spec-bat').value} мАч</div>
+    </div>
+    <div class="price">$${$('dev-price').value}</div>
+  `;
+}
+function startDeviceProject() {
+  const name = $('dev-name').value.trim();
+  if (!name) { toast('Название!', 'yellow'); return; }
+  const pointsCost = Math.round(50 + calcDeviceScore() * 3);
+  const osV = $('dev-os').value;
+  let lic = 0, osName = 'Без ОС';
+  if (osV.startsWith('own_')) { const idx = parseInt(osV.replace('own_', '')); osName = state.oses[idx]?.name || 'None'; }
+  else if (osV === 'ios') { osName = 'PineOS'; lic = 5000; }
+  else if (osV === 'android') { osName = 'Samsun OS'; lic = 3000; }
+  const data = {
+    name, screen: +$('spec-screen').value, hz: +$('spec-hz').value, cam: +$('spec-cam').value, battery: +$('spec-bat').value,
+    charge: +$('spec-charge').value, bright: +$('spec-bright').value, frontcam: +$('spec-frontcam').value,
+    cores: +$('spec-cores').value, ram: +$('spec-ram').value, rom: $('spec-rom').value, res: $('spec-res').value,
+    matrix: $('spec-matrix').value, cpu: $('spec-cpu').value, wifi: $('spec-wifi').value, bt: $('spec-bt').value,
+    material: $('spec-mat').value, form: $('spec-form').value, color: designerColor,
+    price: +$('dev-price').value, cost: calcDeviceCost(), profit: Math.max(1, +$('dev-price').value - calcDeviceCost()),
+    score: calcDeviceScore(), demand: Math.round(calcDeviceScore() * 2),
+    yearMade: safeNum(state.year, 2004), os: osName, licenseCost: lic, unitsSold: 0, toggles: { ...deviceToggles }
+  };
+  state.projects.push({ type: 'Телефон', data, pointsCost, pointsHave: 0, readyToComplete: false });
+  closeModal('device-designer');
+  toast('🚀 ' + pointsCost + ' очков на разработку', 'blue');
+  openProgress(); renderOffice(); updateMainBtn();
+}
+
+function openOSDesigner() {
+  $('os-name').value = 'NovaOS ' + (state.oses.length + 1);
+  $('os-version').value = '1.0';
+  $('os-style').value = 'Material Design';
+  $('os-color').value = '#00d4ff';
+  $('os-color2').value = '#7c3aed';
+  currentOTab = 'main'; switchOTab('main');
+  renderOSPreview(); showModal('os-designer');
+}
+function renderOSPreview() {
+  const color1 = $('os-color')?.value || '#00d4ff';
+  const color2 = $('os-color2')?.value || '#7c3aed';
+  const lockWp = $('lock-wallpaper')?.value || 'Градиент';
+  const homeWp = $('home-wallpaper')?.value || '#1a1a2e';
+  const iconsStyle = $('home-icons')?.value || 'Скруглённые квадраты';
+  const cols = +($('home-cols')?.value || 4);
+  let iconRadius = '22%';
+  if (iconsStyle === 'Круги') iconRadius = '50%';
+  else if (iconsStyle === 'Квадраты') iconRadius = '6px';
+  else if (iconsStyle === 'Squircle') iconRadius = '32%';
+  const screen = $('os-preview-screen');
+  if (!screen) return;
+  const lockWpGrad = lockWp === 'Горы' ? 'linear-gradient(180deg, #87ceeb 0%, #2a4055 100%)' : lockWp === 'Океан' ? 'linear-gradient(180deg, #0077be 0%, #003366 100%)' : lockWp === 'Космос' ? 'linear-gradient(180deg, #0a0a2e 0%, #1a0a2e 100%)' : `linear-gradient(180deg, ${color1} 0%, ${color2} 100%)`;
+  const apps = ['📞','💬','📷','🎵','🌐','📧','🗺️','⚙️','📱','🎮','📺','💰','📝','⌚','☁️','🎨','🔔','🔒','📊','🎬'];
+  const homeApps = apps.slice(0, cols * 3);
+  screen.innerHTML = `
+    <div style="position:absolute;inset:0;background:${lockWpGrad};display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 16px;">
+      <div style="font-size:${$('lock-clock')?.value || 64}px;font-weight:200;color:#fff;letter-spacing:-2px;">12:34</div>
+      ${osToggles.date ? `<div style="font-size:12px;color:#fff;opacity:0.8;margin-top:6px;">Понедельник, 1 января</div>` : ''}
+      ${osToggles.weather ? `<div style="font-size:14px;color:#fff;opacity:0.7;margin-top:16px;">☀️ +22°C</div>` : ''}
+    </div>
+    <div style="position:absolute;inset:0;background:${homeWp};padding:50px 16px 20px;">
+      <div style="display:grid;grid-template-columns:repeat(${cols},1fr);gap:12px 8px;">
+        ${homeApps.map(a => `<div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="aspect-ratio:1;width:100%;max-width:44px;background:linear-gradient(135deg,${color1},${color2});border-radius:${iconRadius};display:flex;align-items:center;justify-content:center;font-size:18px;">${a}</div></div>`).join('')}
+      </div>
+      ${osToggles.dock ? `<div style="position:absolute;bottom:16px;left:16px;right:16px;background:rgba(255,255,255,0.15);border-radius:24px;padding:10px;display:flex;justify-content:space-around;">${['📞','💬','🌐','📷'].map(a => `<div style="width:44px;height:44px;background:linear-gradient(135deg,${color1},${color2});border-radius:${iconRadius};display:flex;align-items:center;justify-content:center;font-size:20px;">${a}</div>`).join('')}</div>` : ''}
+    </div>
+  `;
+}
+function startOSProject() {
+  const name = $('os-name').value.trim();
+  if (!name) { toast('Название!', 'yellow'); return; }
+  const features = Object.entries(osToggles).filter(([k, v]) => v).map(([k]) => k);
+  state.projects.push({
+    type: 'ОС',
+    data: { name, style: $('os-style').value, color: $('os-color').value, color2: $('os-color2').value, version: $('os-version').value, year: safeNum(state.year, 2004), lockWallpaper: $('lock-wallpaper').value, homeWallpaper: $('home-wallpaper').value, homeIcons: $('home-icons').value, homeCols: $('home-cols').value, secType: $('sec-type').value, secPass: $('sec-pass').value, features, toggles: { ...osToggles } },
+    pointsCost: 200 + features.length * 3, pointsHave: 0, readyToComplete: false
+  });
+  closeModal('os-designer');
+  const cost = 200 + features.length * 3;
+  toast('💻 ' + cost + ' очков на разработку', 'blue');
+  openProgress(); renderOffice(); updateMainBtn();
+}
+
+function openProgress() { if (!state.projects.length) return; $('progress-bar').classList.add('show'); updateProgress(); }
+function updateProgress() {
+  const o = $('progress-bar');
+  if (!state || !state.projects.length) { o.classList.remove('show'); return; }
+  o.classList.add('show');
+  const p = state.projects[0];
+  const pct = Math.min(100, Math.round(safeNum(p.pointsHave) / Math.max(1, safeNum(p.pointsCost, 1)) * 100));
+  $('dpo-fill').style.width = pct + '%';
+  $('dpo-text').textContent = (p.data?.name || 'Проект') + ' — ' + Math.floor(safeNum(p.pointsHave)) + '/' + safeNum(p.pointsCost) + ' (' + pct + '%)';
+}
+
+function openPayment(project) {
+  if (!project) return;
+  let desc = '', total = 0;
+  if (project.type === 'Телефон') { const bc = safeNum(project.data.cost) * 100; total = bc + safeNum(project.data.licenseCost); desc = `<div style="font-size:22px;font-weight:900;color:var(--accent);margin-bottom:14px;">${escapeHtml(project.data.name)}</div><div style="font-size:13px;color:var(--text-dim);">Себестоимость × 100 = $${fmtMoney(bc)}</div><div style="margin-top:14px;font-size:26px;color:var(--accent);font-weight:900;">$${fmtMoney(total)}</div>`; }
+  else { total = 3000; desc = `<div style="font-size:22px;font-weight:900;color:var(--accent);">${escapeHtml(project.data.name)}</div><div>Стоимость: $3 000</div>`; }
+  $('payment-info').innerHTML = desc;
+  $('payment-btn').onclick = () => completePayment(project, total);
+  showModal('payment-modal');
+}
+function completePayment(project, cost) {
+  if (safeNum(state.money) < cost) { toast('Нужно $' + fmtMoney(cost), 'error'); return; }
+  state.money -= cost;
+  if (project.type === 'Телефон') { state.devices.unshift({ ...project.data, unitsSold: 0 }); state.company.rep = Math.min(100, safeNum(state.company.rep) + Math.min(10, safeNum(project.data.score) / 10)); toast('🎉 Телефон выпущен!', 'success'); }
+  else { state.oses.push({ ...project.data, rating: 50 + Math.floor(Math.random() * 50) }); state.company.rep = Math.min(100, safeNum(state.company.rep) + 5); toast('🎉 ОС выпущена!', 'success'); }
+  state.projects = state.projects.filter(p => p !== project);
+  closeModal('payment-modal'); updateProgress(); renderAll(); updateMainBtn(); saveToSlot(state.slot);
+}
+
+function openMarketing() { showModal('marketing'); }
+function doMarketing(cost, boost) { if (safeNum(state.money) < cost) { toast('Мало денег', 'error'); return; } state.money -= cost; state.marketingBoost = boost; state.marketingDays = 30; toast('📢 Кампания запущена!', 'success'); closeModal('marketing'); updateHud(); }
+function renderFeed() { if (!state) return; $('news-list').innerHTML = (state.feed || []).slice(0, 15).map(p => `<div class="ni"><div><span class="na">@${escapeHtml(p.author)}</span></div>${escapeHtml(p.text)}</div>`).join('') || '<div class="hint" style="padding:8px;">Пусто</div>'; }
+function openDevicesList() { if (!state.devices.length) $('devices-list').innerHTML = '<div class="hint">Нет устройств.</div>'; else $('devices-list').innerHTML = state.devices.map(d => `<div class="slot"><div class="slot-title">${escapeHtml(d.name)}</div><div class="slot-info">${safeNum(d.screen).toFixed(1)}" • ${safeNum(d.hz)}Гц • ${safeNum(d.cam)}Мп</div><div style="color:var(--accent);font-weight:900;margin-top:6px;">$${safeNum(d.price)} • оценка ${safeNum(d.score)}/100</div></div>`).join(''); showModal('devices-modal'); }
+function openCompanies() { $('companies-list').innerHTML = COMPETITORS.map(c => `<div class="company-card"><div class="cc-logo" style="background:${c.color}22;border-color:${c.color}55;">${c.emoji}</div><div class="cc-info"><div class="cc-nm" style="color:${c.color};">${c.name}</div><div class="cc-ds">${c.desc} • Доля ${c.shareBase}%</div></div></div>`).join(''); showModal('companies-modal'); }
+function openOfficeUpgrade() {
+  $('office-upgrade-list').innerHTML = OFFICE_LEVELS.map(lvl => {
+    const cur = lvl.level === state.officeLevel; const lock = lvl.level < state.officeLevel;
+    const btn = cur ? '<span style="color:var(--green);font-weight:900;">✅ Текущий</span>' : lock ? '<span style="color:var(--text-dim);">🔒</span>' : `<button class="btn btn-primary" style="width:100%;padding:10px;" onclick="upgradeOffice(${lvl.level})">Купить</button>`;
+    return `<div class="office-upgrade ${cur ? 'current' : lock ? 'locked' : ''}"><div class="oup-nm">${lvl.name}</div><div class="oup-ds">Сотр.: ${lvl.maxWorkers} • ×${lvl.ptsBonus.toFixed(1)}</div><div class="oup-cs">$${fmtMoney(lvl.cost)} + ⭐${lvl.pointsCost}</div>${btn}</div>`;
+  }).join('');
+  showModal('office-upgrade-modal');
+}
+function upgradeOffice(nl) { const lvl = OFFICE_LEVELS.find(l => l.level === nl); if (!lvl) return; if (safeNum(state.money) < lvl.cost) { toast('Нужно $' + fmtMoney(lvl.cost), 'error'); return; } if (safeNum(state.points) < lvl.pointsCost) { toast('Нужно ⭐' + lvl.pointsCost, 'error'); return; } state.money -= lvl.cost; state.points -= lvl.pointsCost; state.officeLevel = nl; toast('🏢 Офис улучшен!', 'success'); closeModal('office-upgrade-modal'); updateHud(); renderAll(); }
+
+function openCopySetup() {
+  if (!state.devices.length) { toast('Сначала создайте телефон!', 'yellow'); return; }
+  selectedCopyP = null; selectedCopyY = null;
+  $('copy-partners').innerHTML = COPY_PARTNERS.map(p => `<div class="copy-card" data-p="${p.id}" onclick="selectCP('${p.id}')"><div class="ce">${p.emoji}</div><div class="cn">${p.name}</div><div class="cs">К: ${Math.round(p.quality*100)}% • Л: ${Math.round(p.logistics*100)}%<br>$${fmtMoney(p.basePrice)}</div></div>`).join('');
+  $('copy-years').innerHTML = COPY_YEARS.map(y => `<div class="copy-card" data-y="${y.years}" onclick="selectCY(${y.years})"><div class="ce">📅</div><div class="cn">${y.years} лет</div><div class="cs">×${y.mult.toFixed(1)}</div></div>`).join('');
+  $('copy-summary').innerHTML = '<div style="text-align:center;color:var(--text-dim);">Выберите партнёра и срок ↓</div>';
+  showModal('copy-modal');
+}
+function selectCP(id) { selectedCopyP = id; document.querySelectorAll('[data-p]').forEach(el => el.classList.toggle('selected', el.dataset.p === id)); updateCopySummary(); }
+function selectCY(y) { selectedCopyY = y; document.querySelectorAll('[data-y]').forEach(el => el.classList.toggle('selected', +el.dataset.y === y)); updateCopySummary(); }
+function updateCopySummary() {
+  if (!selectedCopyP || !selectedCopyY) { $('copy-summary').innerHTML = '<div style="text-align:center;color:var(--text-dim);">Выберите партнёра и срок ↓</div>'; return; }
+  const p = COPY_PARTNERS.find(x => x.id === selectedCopyP);
+  const y = COPY_YEARS.find(x => x.years === selectedCopyY);
+  const total = Math.round(p.basePrice * y.mult);
+  const can = safeNum(state.money) >= total;
+  const income = Math.round(safeNum(state.devices[0]?.profit, 100) * p.quality * p.logistics * 100);
+  $('copy-summary').innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div><div style="font-size:16px;font-weight:900;">${p.emoji} ${p.name}</div><div style="font-size:11px;color:var(--text-dim);margin-top:2px;">~$${fmtMoney(income)}/день</div></div><div style="text-align:right;"><div style="font-size:10px;color:var(--text-dim);">Стоимость</div><div style="font-size:22px;font-weight:900;color:${can ? 'var(--accent)' : 'var(--red)'};">$${fmtMoney(total)}</div></div></div><button class="btn ${can ? 'btn-primary' : 'btn-secondary'}" style="width:100%;padding:14px;" onclick="confirmCopy()" ${!can ? 'disabled' : ''}>${can ? '✅ Заключить контракт' : '❌ Нужно $' + fmtMoney(total - safeNum(state.money))}</button>`;
+}
+function confirmCopy() {
+  if (!selectedCopyP || !selectedCopyY) return;
+  const p = COPY_PARTNERS.find(x => x.id === selectedCopyP); const y = COPY_YEARS.find(x => x.years === selectedCopyY);
+  const total = Math.round(p.basePrice * y.mult);
+  if (safeNum(state.money) < total) { toast('Мало денег', 'error'); return; }
+  state.money -= total;
+  state.copies.active = { partner: selectedCopyP, years: selectedCopyY, untilYear: safeNum(state.year) + selectedCopyY, hype: 0, totalSold: 0, totalIncome: 0, price: safeNum(state.devices[0]?.price, 100), profit: safeNum(state.devices[0]?.profit, 100), quality: p.quality, logistics: p.logistics };
+  toast('📱 Контракт заключён!', 'success');
+  closeModal('copy-modal'); updateHud(); updateCopyPanel();
+}
+function updateCopyPanel() {
+  const panel = $('copy-panel');
+  if (!state || !state.copies || !state.copies.active) { panel.classList.remove('show'); return; }
+  panel.classList.add('show');
+  const c = state.copies.active;
+  $('cp-hype').textContent = Math.round(safeNum(c.hype, 0)) + '%';
+  $('cp-hype-fill').style.width = Math.min(100, safeNum(c.hype, 0)) + '%';
+  $('cp-sold').textContent = fmtMoney(c.totalSold || 0);
+  $('cp-income').textContent = '$' + fmtMoney(c.totalIncome || 0);
+  $('cp-until').textContent = c.untilYear + ' г.';
+}
+function createOwnOS() { closeModal('license-modal'); openOSDesigner(); }
+function buyOSLicense(type) { closeModal('license-modal'); if (type === 'noros') { toast('Без ОС', 'success'); return; } const cost = type === 'ios' ? 5000 : 3000; if (safeNum(state.money) < cost) { toast('Нужно $' + cost, 'error'); return; } state.money -= cost; state.licenses[type] = true; toast('✅ Лицензия куплена', 'success'); updateHud(); }
+
+const SIM_APPS = [
+  { id: 'phone', name: 'Телефон', icon: '📞', color: '#34c759', minYear: 2004 },
+  { id: 'sms', name: 'Сообщения', icon: '💬', color: '#34c759', minYear: 2004 },
+  { id: 'camera', name: 'Камера', icon: '📷', color: '#8e8e93', minYear: 2005 },
+  { id: 'photos', name: 'Галерея', icon: '🖼️', color: '#007aff', minYear: 2009 },
+  { id: 'music', name: 'Музыка', icon: '🎵', color: '#ff2d55', minYear: 2005 },
+  { id: 'internet', name: 'Браузер', icon: '🌐', color: '#007aff', minYear: 2007 },
+  { id: 'mail', name: 'Почта', icon: '📧', color: '#007aff', minYear: 2007 },
+  { id: 'maps', name: 'Карты', icon: '🗺️', color: '#34c759', minYear: 2008 },
+  { id: 'weather', name: 'Погода', icon: '☁️', color: '#5ac8fa', minYear: 2010 },
+  { id: 'calendar', name: 'Календарь', icon: '📅', color: '#ff3b30', minYear: 2008 },
+  { id: 'clock', name: 'Часы', icon: '⏰', color: '#000', minYear: 2004 },
+  { id: 'notes', name: 'Заметки', icon: '📝', color: '#ffcc00', minYear: 2011 },
+  { id: 'calculator', name: 'Калькулятор', icon: '🧮', color: '#ff9500', minYear: 2008 },
+  { id: 'settings', name: 'Настройки', icon: '⚙️', color: '#8e8e93', minYear: 2004 },
+  { id: 'files', name: 'Файлы', icon: '📁', color: '#007aff', minYear: 2008 },
+  { id: 'store', name: 'Магазин', icon: '🛒', color: '#007aff', minYear: 2008 },
+  { id: 'games', name: 'Игры', icon: '🎮', color: '#ff2d55', minYear: 2008 },
+  { id: 'video', name: 'Видео', icon: '📺', color: '#000', minYear: 2010 },
+  { id: 'bank', name: 'Банк', icon: '💰', color: '#34c759', minYear: 2011 },
+  { id: 'health', name: 'Здоровье', icon: '❤️', color: '#ff3b30', minYear: 2014 },
+];
+
+function openOSList() {
+  closePlusMenu();
+  const list = $('ose-list');
+  if (!state.oses.length) { list.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-dim);">У вас нет ОС. Создайте ОС через меню «+»!</div>'; }
+  else { list.innerHTML = state.oses.map((os, i) => `<div class="ose-pick" onclick="launchOSSim(${i})"><div class="oi">💻</div><div class="on">${escapeHtml(os.name)}</div><div class="os">${escapeHtml(os.style)} • v${escapeHtml(os.version)}</div><div class="or">⭐ ${safeNum(os.rating, 50)}/100</div></div>`).join(''); }
+  $('sim-welcome').classList.add('active');
+}
+function closeOSEList() { $('sim-welcome').classList.remove('active'); }
+function launchOSSim(idx) {
+  const os = state.oses[idx];
+  if (!os) return;
+  closeOSEList();
+  simState = { locked: true, currentOS: os, style: { bg: `linear-gradient(135deg, ${os.color || '#00d4ff'}, ${os.color2 || '#7c3aed'})`, textColor: '#fff' }, enteredPass: '', currentApp: null };
+  $('sim').classList.add('active');
+  renderSimLock(); renderSimHome();
+}
+function closeSim() { $('sim').classList.remove('active'); $('sim-welcome').classList.remove('active'); simState = { locked: true, currentOS: null, style: null, enteredPass: '', currentApp: null }; lastFrame = performance.now(); }
+function renderSimLock() {
+  const os = simState.currentOS; const s = simState.style;
+  if (!os || !s) return;
+  const d = new Date(); const time = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+  const passType = os.secType || 'Без пароля';
+  let unlock = '';
+  if (passType === 'Без пароля') unlock = `<div style="font-size:12px;color:#fff;opacity:0.75;margin-bottom:10px;">Нажмите чтобы открыть</div><button class="sim-unlock-btn" onclick="simUnlock()">🔓 Открыть</button>`;
+  else unlock = `<input type="password" placeholder="Пароль" oninput="simState.enteredPass=this.value" style="padding:14px;border-radius:14px;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.3);color:#fff;font-size:15px;text-align:center;"><button class="sim-unlock-btn" onclick="simUnlock()">Открыть</button>`;
+  $('sim-status').innerHTML = `<div style="color:#fff">${time}</div><div style="color:#fff">📶 🔋 100%</div>`;
+  $('sim-lock').innerHTML = `<div style="text-align:center;"><div style="font-size:72px;font-weight:200;color:#fff;letter-spacing:-2px;">${time}</div><div style="font-size:14px;color:#fff;opacity:0.85;">Понедельник, 1 января</div><div style="font-size:12px;color:#fff;opacity:0.6;margin-top:14px;">${escapeHtml(os.name)}</div></div><div style="width:100%;display:flex;flex-direction:column;align-items:center;gap:10px;">${unlock}</div>`;
+  $('sim-lock').style.background = s.bg;
+  $('sim-lock').style.display = simState.locked ? 'flex' : 'none';
+  $('sim-home').classList.toggle('unlock', !simState.locked);
+}
+function simUnlock() { simState.locked = false; simState.enteredPass = ''; $('sim-lock').classList.add('unlock'); setTimeout(() => { $('sim-lock').style.display = 'none'; $('sim-home').classList.add('unlock'); }, 400); }
+function renderSimHome() {
+  const s = simState.style; const os = simState.currentOS; if (!s || !os) return;
+  const cy = safeNum(state.year, 2004);
+  const apps = SIM_APPS.filter(a => a.minYear <= cy);
+  const homeApps = apps.slice(0, 20);
+  const dockApps = apps.slice(0, 4);
+  const cols = +os.homeCols || 4;
+  const icons = homeApps.map(a => `<div class="sim-app" onclick="simOpenApp('${a.id}')"><div class="ai" style="border-radius:22%;background:${a.color};">${a.icon}</div><div class="al">${a.name}</div></div>`).join('');
+  const docks = dockApps.map(a => `<div class="da" style="background:${a.color}66;border:1px solid ${a.color};border-radius:22%;" onclick="simOpenApp('${a.id}')">${a.icon}</div>`).join('');
+  $('sim-home').innerHTML = `<div style="text-align:center;margin-bottom:16px;"><div style="font-size:48px;font-weight:200;color:#fff;">${new Date().getHours().toString().padStart(2,'0')}:${new Date().getMinutes().toString().padStart(2,'0')}</div><div style="font-size:13px;color:#fff;opacity:0.75;">Понедельник, 1 января</div></div><div class="sim-apps" style="grid-template-columns:repeat(${cols},1fr);">${icons}</div><div class="sim-dock" style="background:rgba(255,255,255,0.15);">${docks}</div>`;
+  $('sim-home').style.background = s.bg;
+}
+function simOpenApp(id) {
+  const app = SIM_APPS.find(a => a.id === id); if (!app) return;
+  const content = renderAppContent(id);
+  $('sim-app-view').innerHTML = `<div class="app-header"><div class="back-btn" onclick="simCloseApp()">←</div><div class="app-title">${app.icon} ${app.name}</div></div><div class="app-body">${content}</div>`;
+  $('sim-app-view').classList.add('open');
+}
+function simCloseApp() { $('sim-app-view').classList.remove('open'); }
+function renderAppContent(id) {
+  const today = new Date();
+  switch(id) {
+    case 'phone': return `<div style="text-align:center;padding:20px;"><div style="font-size:22px;font-weight:800;margin-bottom:16px;">+7 999 123-45-67</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">${[1,2,3,4,5,6,7,8,9,'*',0,'#'].map(n => `<div style="aspect-ratio:1;background:rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:600;cursor:pointer;">${n}</div>`).join('')}</div></div>`;
+    case 'sms': return `<div>${['Алексей','Мария','Иван'].map(n => `<div style="display:flex;gap:10px;padding:12px;background:rgba(255,255,255,0.05);border-radius:12px;margin-bottom:6px;"><div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#34c759,#30a14e);display:flex;align-items:center;justify-content:center;font-size:18px;">👤</div><div style="flex:1;"><div style="font-weight:700;">${n}</div><div style="font-size:12px;opacity:0.7;">Привет!</div></div></div>`).join('')}</div>`;
+    case 'camera': return `<div style="position:relative;height:420px;border-radius:16px;overflow:hidden;background:linear-gradient(180deg,#87ceeb,#4a90b8);"><div style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);width:64px;height:64px;border-radius:50%;background:#fff;border:3px solid rgba(0,0,0,0.2);cursor:pointer;" onclick="toast('📸 Фото','success')"></div></div>`;
+    case 'music': return `<div style="text-align:center;padding:20px;"><div style="width:200px;height:200px;margin:0 auto;border-radius:18px;background:linear-gradient(135deg,#ff2d55,#5856d6);display:flex;align-items:center;justify-content:center;font-size:100px;">🎵</div><div style="margin-top:16px;font-size:18px;font-weight:800;">Трек компании</div></div>`;
+    case 'calculator': return `<div><div style="padding:16px;background:rgba(0,0,0,0.4);border-radius:12px;text-align:right;font-size:32px;font-weight:200;margin-bottom:10px;">0</div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">${['C','±','%','÷','7','8','9','×','4','5','6','−','1','2','3','+','0','.','='].map(btn => `<div style="aspect-ratio:1;background:${['÷','×','−','+','='].includes(btn) ? '#ff9500' : 'rgba(255,255,255,0.1)'};border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:600;">${btn}</div>`).join('')}</div></div>`;
+    case 'bank': return `<div><div style="padding:20px;background:linear-gradient(135deg,${state.company.color},${shadeColor(state.company.color, -40)});border-radius:18px;color:#fff;"><div style="font-size:11px;opacity:0.8;">Счёт</div><div style="font-size:30px;font-weight:900;margin-top:6px;">$${fmtMoney(state.money)}</div></div></div>`;
+    default: return `<div style="text-align:center;padding:60px 20px;opacity:0.5;">В разработке</div>`;
+  }
+}
+
+function openSocial() {
+  if (!state.socialChannel) return;
+  const sc = state.socialChannel;
+  $('vk-content').innerHTML = `<div style="display:flex;gap:16px;align-items:center;padding:20px;background:rgba(0,212,255,0.1);border-radius:16px;margin-bottom:16px;"><div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-3));display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;">${state.company.name.charAt(0)}</div><div><div style="font-size:20px;font-weight:900;">${escapeHtml(sc.name)}</div><div style="font-size:13px;color:var(--text-dim);margin-top:4px;">${fmtMoney(sc.subscribers)} подписчиков</div></div></div><h3 style="font-size:13px;color:var(--accent);text-transform:uppercase;margin-bottom:12px;">Галочки</h3><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">${[
+    { id: 'blue', label: 'Синяя', icon: '✓', subsRequired: 10000, color: '#4facfe' },
+    { id: 'green', label: 'Зелёная', icon: '✓', subsRequired: 100000, color: '#10b981' },
+    { id: 'gold', label: 'Золотая', icon: '★', subsRequired: 1000000, color: '#fbbf24' },
+    { id: 'purple', label: 'Фиолетовая', icon: '✦', subsRequired: 10000000, color: '#c084fc' },
+  ].map(b => { const has = safeNum(sc.subscribers) >= b.subsRequired; const prog = Math.min(100, (safeNum(sc.subscribers) / Math.max(1, b.subsRequired)) * 100); return `<div style="padding:14px;background:rgba(0,0,0,0.4);border:1px solid ${has ? 'rgba(16,185,129,0.5)' : 'var(--border)'};border-radius:12px;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><div style="width:30px;height:30px;border-radius:8px;background:${b.color}33;color:${b.color};display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;">${b.icon}</div><div style="font-size:12px;font-weight:800;">${b.label}</div></div><div style="height:4px;background:rgba(0,0,0,0.4);border-radius:2px;overflow:hidden;"><div style="height:100%;width:${prog}%;background:${b.color};"></div></div><div style="font-size:10px;color:var(--text-dim);margin-top:4px;">${has ? '✅' : fmtMoney(b.subsRequired)}</div></div>`; }).join('')}</div><div style="margin-top:20px;"><button class="btn btn-primary" style="width:100%;" onclick="vkQuickPost()">📢 Опубликовать пост</button></div>`;
+  showModal('vk-modal');
+}
+function vkQuickPost() { if (!state.socialChannel.posts) state.socialChannel.posts = []; state.socialChannel.posts.unshift({ text: '🚀 ' + state.company.name + ' представляет!', time: 'День ' + state.day, likes: Math.floor(Math.random() * 1000) }); state.socialChannel.subscribers = safeNum(state.socialChannel.subscribers) + Math.floor(Math.random() * 500); toast('📢 Опубликовано!', 'success'); openSocial(); }
+
+const OFFICE_DECOR = {
+  1: { win: 'night', carpet: null, plant: '🪴', plant2: null, bookshelf: false, board: false, clock: true, extra: '📦' },
+  2: { win: 'day', carpet: 'blue', plant: '🪴', plant2: null, bookshelf: true, board: false, clock: true },
+  3: { win: 'day', carpet: 'blue', plant: '🪴', plant2: '🌿', bookshelf: true, board: true, clock: true },
+  4: { win: 'sunset', carpet: 'red', plant: '🪴', plant2: '🌿', bookshelf: true, board: true, clock: true },
+  5: { win: 'city', carpet: 'purple', plant: '🪴', plant2: '🌿', bookshelf: true, board: true, clock: true },
+  6: { win: 'city', carpet: 'gold', plant: '🌴', plant2: '🌿', bookshelf: true, board: true, clock: true, extra: '🖼️' },
+  7: { win: 'day', carpet: 'green', plant: '🌴', plant2: '🌲', bookshelf: true, board: true, clock: true, extra: '🎨' },
+  8: { win: 'city', carpet: 'gold', plant: '🌴', plant2: '🌲', bookshelf: true, board: true, clock: true, extra: '🚀' },
+};
+function renderOffice() {
+  if (!state) return;
+  const room = $('office-room'); const level = state.officeLevel || 1;
+  room.className = 'lvl-' + level;
+  const office = OFFICE_LEVELS[level - 1] || OFFICE_LEVELS[0];
+  $('room-workers').textContent = state.workers.length;
+  const d = OFFICE_DECOR[level] || OFFICE_DECOR[1];
+  const boardClass = level >= 6 ? 'holo' : '';
+  const decorHtml = `<div class="office-window ${d.win}"><div class="win-v"></div><div class="win-h"></div></div>${d.carpet ? `<div class="office-carpet ${d.carpet}"></div>` : ''}${d.plant ? `<div class="office-plant">${d.plant}</div>` : ''}${d.plant2 ? `<div class="office-plant2">${d.plant2}</div>` : ''}${d.clock ? '<div class="wall-clock"></div>' : ''}${d.extra ? `<div style="position:absolute;top:15%;left:50%;font-size:36px;opacity:0.6;">${d.extra}</div>` : ''}${level >= 5 ? '<div class="server-rack"><div class="srv"></div><div class="srv"></div><div class="srv"></div></div>' : ''}${level >= 6 ? '<div class="office-ac"></div>' : ''}`;
+  const pos = [{ top: '48%', left: '10%' },{ top: '48%', left: '28%' },{ top: '48%', left: '46%' },{ top: '48%', left: '64%' },{ top: '73%', left: '18%' },{ top: '73%', left: '38%' },{ top: '73%', left: '58%' },{ top: '73%', left: '78%' }];
+  let deskHtml = '';
+  for (let i = 0; i < Math.min(office.maxWorkers, pos.length); i++) {
+    const p = pos[i]; const cls = level >= 7 ? 'holo' : level >= 5 ? 'fancy' : '';
+    deskHtml += `<div class="office-desk ${cls}" style="top:calc(${p.top} + 30px); left:${p.left};"><div class="mini-mon"></div><div class="dl l"></div><div class="dl r"></div></div>`;
+  }
+  $('office-decor').innerHTML = decorHtml + deskHtml;
+  let wHtml = '';
+  state.workers.forEach((w, i) => { if (i >= pos.length) return; const p = pos[i]; wHtml += `<div class="worker-2d" style="top:${p.top}; left:${p.left};" onclick="fireWorker(${i})"><div class="wp">+${safeNum(w.ptsPerSec, 1).toFixed(2)}</div><div class="wh">${w.emoji}</div><div class="wb"></div><div class="wn">${escapeHtml(w.name)}</div></div>`; });
+  $('office-workers').innerHTML = wHtml;
+  let eHtml = '';
+  for (let i = state.workers.length; i < Math.min(8, state.workers.length + 2) && i < office.maxWorkers; i++) { if (i >= pos.length) break; const p = pos[i]; eHtml += `<div class="empty-slot" style="top:calc(${p.top} - 10px); left:${p.left};" onclick="openStaff()">+</div>`; }
+  $('office-empty').innerHTML = eHtml;
+  $('project-count').textContent = state.projects.length;
+  const proj = $('office-projects');
+  if (!state.projects.length) proj.innerHTML = '<div class="hint" style="padding:6px;text-align:center;">Нет проектов</div>';
+  else proj.innerHTML = state.projects.map((p, i) => { const pct = Math.min(100, Math.round(safeNum(p.pointsHave) / Math.max(1, safeNum(p.pointsCost, 1)) * 100)); const ready = p.pointsHave >= p.pointsCost; return `<div style="background:rgba(0,0,0,0.3);border-radius:12px;padding:12px;margin-bottom:6px;${ready ? 'border:1px solid rgba(16,185,129,0.5);' : ''}"><div style="font-size:12px;font-weight:800;">${ready ? '✅ ' : '⏳ '}${escapeHtml(p.data?.name || 'ОС')}</div><div style="height:6px;background:rgba(0,0,0,0.4);border-radius:3px;overflow:hidden;margin-top:8px;"><div style="height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-3));width:${pct}%;transition:width 0.3s;"></div></div><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-dim);margin-top:6px;"><span>${Math.floor(safeNum(p.pointsHave))}/${safeNum(p.pointsCost)}</span><span>${pct}%</span></div>${ready ? `<button class="btn btn-primary" style="margin-top:8px;padding:8px;font-size:11px;width:100%;" onclick="openPayment(state.projects[${i}])">💰 Оплатить</button>` : ''}</div>`; }).join('');
+  updateAwardsBadge();
+}
+function updateOfficeArc() { const c = $('office-workers'); if (!c) return; state.workers.forEach((w, i) => { const el = c.children[i]; if (el) { const p = el.querySelector('.wp'); if (p) p.textContent = '+' + safeNum(w.ptsPerSec, 1).toFixed(2); } }); }
+function fireWorker(i) { if (!state.workers[i]) return; if (!confirm('Уволить ' + state.workers[i].name + '?')) return; state.workers.splice(i, 1); renderOffice(); }
+
+function openStaff() {
+  const office = OFFICE_LEVELS[state.officeLevel - 1] || OFFICE_LEVELS[0];
+  const totalPts = state.workers.reduce((s, w) => s + safeNum(w.ptsPerSec), 0);
+  $('staff-stats').innerHTML = `<div class="stat-card"><div class="sv">${state.workers.length}/${office.maxWorkers}</div><div class="sl">Сотр.</div></div><div class="stat-card"><div class="sv">${(totalPts * POINTS_MULTIPLIER * office.ptsBonus).toFixed(2)}</div><div class="sl">Очк/сек</div></div><div class="stat-card"><div class="sv">${Math.floor(safeNum(state.points))}</div><div class="sl">Всего</div></div>`;
+  $('staff-count').textContent = state.workers.length;
+  $('staff-workers').innerHTML = state.workers.length ? state.workers.map((w, i) => `<div class="staff-worker"><div class="sw-av">${w.emoji}</div><div class="sw-i"><div class="sw-n">${escapeHtml(w.name)}</div><div class="sw-r">${w.role}</div><div class="sw-p">+${(safeNum(w.ptsPerSec) * POINTS_MULTIPLIER * office.ptsBonus).toFixed(3)}/сек</div></div><button class="sw-f" onclick="fireStaff(${i})">✕</button></div>`).join('') : '<div class="hint" style="padding:8px;">Пусто</div>';
+  $('staff-hire').innerHTML = state.hirePool.map((w, i) => `<div class="staff-hire" onclick="hireStaff(${i})"><div class="sh-av">${w.emoji}</div><div class="sh-i"><div class="sh-n">${escapeHtml(w.name)}</div><div class="sh-r">${w.role}</div></div><div class="sh-p">$${safeNum(w.cost)}</div></div>`).join('');
+  showModal('staff-modal');
+}
+function hireStaff(i) { const w = state.hirePool[i]; if (!w) return; const office = OFFICE_LEVELS[state.officeLevel - 1] || OFFICE_LEVELS[0]; if (state.workers.length >= office.maxWorkers) { toast('Офис полон!', 'yellow'); return; } if (safeNum(state.money) < safeNum(w.cost)) { toast('Нужно $' + safeNum(w.cost), 'error'); return; } state.money -= w.cost; state.workers.push(w); state.hirePool.splice(i, 1); if (state.hirePool.length < 3) state.hirePool = state.hirePool.concat(generateHirePool().slice(0, 2)); toast('✅ Нанят: ' + w.name, 'success'); updateHud(); closeModal('staff-modal'); renderOffice(); }
+function fireStaff(i) { if (!confirm('Уволить?')) return; state.workers.splice(i, 1); openStaff(); renderOffice(); }
+
+function openResearch() { renderResearch(); showModal('research-modal'); $('research-points-val').textContent = Math.floor(safeNum(state.points)); }
+function switchRTab(tab) { currentRTab = tab; document.querySelectorAll('.r-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab)); renderResearch(); }
+function renderResearch() {
+  const box = $('research-content');
+  const items = RESEARCH_ITEMS.filter(i => i.section === currentRTab).slice(0, 100);
+  const cy = safeNum(state.year, 2004); const pts = safeNum(state.points);
+  box.innerHTML = items.map(item => {
+    const owned = getPurchased(item.id) >= 1; const yearOk = item.year <= cy; const canBuy = pts >= item.cost;
+    let cls = 'r-item'; if (owned) cls += ' purchased'; else if (!yearOk) cls += ' locked'; else cls += ' available';
+    let btn = '';
+    if (owned) btn = '<button class="rb bought" disabled>✅ Куплено</button>';
+    else if (!yearOk) btn = `<button class="rb locked" disabled>🔒 Год ${item.year}</button>`;
+    else if (canBuy) btn = `<button class="rb buy" data-buy="${item.id}">🛒 ⭐${item.cost}</button>`;
+    else btn = `<button class="rb buy no-money" data-buy="${item.id}">⭐ Нужно ${item.cost}</button>`;
+    return `<div class="${cls}"><div class="rh"><div class="ri">${item.icon}</div><div class="rc">⭐ ${item.cost}</div></div><div class="rt">${escapeHtml(item.title)}</div><div class="rd">${escapeHtml(item.desc)}</div><div class="ry">📅 ${item.year}</div>${btn}</div>`;
+  }).join('');
+}
+function handleResearchClick(e) { const b = e.target.closest('[data-buy]'); if (!b) return; e.preventDefault(); e.stopPropagation(); buyResearch(b.getAttribute('data-buy')); }
+function buyResearch(id) { const item = RESEARCH_ITEMS.find(i => i.id === id); if (!item) return; if (getPurchased(item.id) >= 1) { toast('Уже куплено', 'yellow'); return; } if (safeNum(state.points) < item.cost) { toast('Нужно ⭐' + item.cost, 'error'); return; } state.points -= item.cost; state.research[item.id] = 1; showUnlocked('Открыто: ' + item.title); $('research-points-val').textContent = Math.floor(safeNum(state.points)); updateHud(); renderResearch(); }
+function buyAllBest() { if (!state) return; const cy = safeNum(state.year, 2004); const avail = RESEARCH_ITEMS.filter(i => getPurchased(i.id) < 1 && i.year <= cy); if (!avail.length) { toast('Всё куплено!', 'yellow'); return; } avail.sort((a, b) => b.cost - a.cost); let count = 0; for (const item of avail) { if (safeNum(state.points) >= item.cost) { state.points -= item.cost; state.research[item.id] = 1; count++; } } if (!count) { toast('Мало очков', 'error'); return; } showUnlocked('Куплено ' + count + ' исследований'); $('research-points-val').textContent = Math.floor(safeNum(state.points)); updateHud(); renderResearch(); }
+
+function adminSetStatus(text, type) { const el = $('admin-status'); el.textContent = text; el.className = 'admin-status ' + (type || 'ok'); }
+function openAdmin() { adminAuthorized = false; $('admin-login').style.display = 'block'; $('admin-panel').style.display = 'none'; $('admin-pass').value = ''; showModal('admin-modal'); }
+function adminLogin() { if ($('admin-pass').value === ADMIN_PASSWORD) { adminAuthorized = true; $('admin-login').style.display = 'none'; $('admin-panel').style.display = 'block'; adminSetStatus('✅ Доступ разрешён', 'ok'); } else { adminSetStatus('❌ Неверный пароль', 'err'); } }
+function adminReq() { if (!adminAuthorized) { adminSetStatus('❌ Нет доступа', 'err'); return false; } if (!state) { adminSetStatus('❌ Нет игры', 'err'); return false; } return true; }
+function adminGiveMoney() { if (!adminReq()) return; const v = parseInt($('adm-money').value) || 0; state.money = safeNum(state.money) + v; adminSetStatus('✅ +$' + fmtMoney(v), 'ok'); updateHud(); }
+function adminGivePoints() { if (!adminReq()) return; const v = parseInt($('adm-points').value) || 0; state.points = safeNum(state.points) + v; adminSetStatus('✅ +⭐' + v, 'ok'); updateHud(); }
+function adminSetMoney(v) { if (!adminReq()) return; state.money = v; adminSetStatus('✅ $' + fmtMoney(v), 'ok'); updateHud(); }
+function adminSetPoints(v) { if (!adminReq()) return; state.points = v; adminSetStatus('✅ ⭐' + v, 'ok'); updateHud(); }
+function adminSetYear() { if (!adminReq()) return; const y = Math.max(2004, Math.min(2070, parseInt($('adm-year').value) || 2004)); state.year = y; state.month = 0; state.day = 1; adminSetStatus('✅ Год: ' + y, 'ok'); updateHud(); renderAll(); }
+function adminAdvanceYears(n) { if (!adminReq()) return; state.year = Math.min(2070, state.year + n); adminSetStatus('✅ Год: ' + state.year, 'ok'); updateHud(); renderAll(); }
+function adminUnlockAll() { if (!adminReq()) return; RESEARCH_ITEMS.forEach(i => { state.research[i.id] = 1; }); adminSetStatus('✅ Все открыты', 'ok'); updateHud(); }
+function adminFillOffice() { if (!adminReq()) return; const office = OFFICE_LEVELS[state.officeLevel - 1] || OFFICE_LEVELS[0]; while (state.workers.length < office.maxWorkers) { state.workers.push(generateHirePool()[0]); } adminSetStatus('✅ Офис заполнен', 'ok'); renderAll(); }
+function adminMaxOffice() { if (!adminReq()) return; state.officeLevel = 8; adminSetStatus('✅ Офис ур.8', 'ok'); renderAll(); }
+function adminGiveAward() { if (!adminReq()) return; const cat = ['Телефон года','ОС года','Дизайн года','Сотрудник года','Компания года'][Math.floor(Math.random() * 5)]; state.awards.push({ id: 'adm_' + Date.now(), catName: cat, year: state.year, icon: '🏆', seen: false }); adminSetStatus('✅ Награда: ' + cat, 'ok'); updateHud(); toast('🏆 Получена награда!', 'success'); }
+function adminResetAll() { if (confirm('Удалить ВСЕ сохранения?')) { localStorage.removeItem(STORAGE_KEY); location.reload(); } }
+
+function renderAll() { if (!state) return; updateHud(); renderFeed(); renderOffice(); updateProgress(); updateAwardsBadge(); updateCopyPanel(); updateMainBtn(); }
+
+function openEsc() { paused = true; $('esc-menu').classList.add('active'); }
+function closeEsc() { $('esc-menu').classList.remove('active'); paused = false; lastFrame = performance.now(); }
+function escResume() { closeEsc(); }
+async function escDownloadSave() { await exportSave(); }
+async function escSave() { await saveToSlot(state.slot); if (gameLoopHandle) cancelAnimationFrame(gameLoopHandle); gameLoopHandle = null; $('game-screen').classList.remove('active'); $('menu').classList.add('active'); closeEsc(); state = null; }
+async function escExit() { if (!confirm('Выйти без сохранения?')) return; if (gameLoopHandle) cancelAnimationFrame(gameLoopHandle); gameLoopHandle = null; $('game-screen').classList.remove('active'); $('menu').classList.add('active'); closeEsc(); state = null; }
+function endGame() { if (gameLoopHandle) cancelAnimationFrame(gameLoopHandle); alert('🏁 2070! Игра завершена.'); saveAndExit(); }
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if ($('plus-menu').classList.contains('show')) { closePlusMenu(); return; }
+    if ($('sim').classList.contains('active')) { closeSim(); return; }
+    if ($('sim-welcome').classList.contains('active')) { closeOSEList(); return; }
+    const modals = document.querySelectorAll('.modal-mask.active');
+    if (modals.length) { modals.forEach(m => m.classList.remove('active')); return; }
+    if (state && !$('esc-menu').classList.contains('active')) { openEsc(); return; }
+    if ($('esc-menu').classList.contains('active')) closeEsc();
+  }
+  if (e.key === 'Insert') { e.preventDefault(); openAdmin(); }
+});
+
+console.log('✅ Create Device 1.0 загружена');
+console.log('📊 Исследований:', RESEARCH_ITEMS.length);
+console.log('💡 Админка: Insert (пароль: Dingo700)');
+</script>
+</body>
+</html>
